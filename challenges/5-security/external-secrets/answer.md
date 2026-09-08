@@ -1,11 +1,26 @@
-# Solution
+# Solution: Fix Broken External Secret Sync
 
-The `ExternalSecret` was failing because it referenced a non-existent property `pass_word` in the `remoteRef`. The correct property in the `Fake` provider data is `password`.
+## Diagnosis
 
-## Fixed ExternalSecret
+```bash
+kubectl describe externalsecret payment-db-secret -n cnpe-eso-test
+```
+
+The `Ready` condition is `False` with reason `SecretSyncedError`, and the event names the
+failing entry:
+
+```
+error processing spec.data[1] (key: /prod/payment-service/db), err: ... pass_word
+```
+
+The store holds a JSON document with the keys `username`, `password`, and `host`. The
+ExternalSecret asks for the property `pass_word`, which does not exist, so ESO refuses to
+write any part of the target Secret — one bad entry fails the whole sync.
+
+## Fix the property name
 
 ```yaml
-apiVersion: external-secrets.io/v1beta1
+apiVersion: external-secrets.io/v1
 kind: ExternalSecret
 metadata:
   name: payment-db-secret
@@ -26,13 +41,28 @@ spec:
   - secretKey: DB_PASSWORD
     remoteRef:
       key: "/prod/payment-service/db"
-      property: "password" # Fixed typo
+      property: "password"
 ```
 
-## Diagnosis Steps
+Editing the live object works too: `kubectl edit externalsecret payment-db-secret -n
+cnpe-eso-test` and change `pass_word` to `password`.
 
-1.  Run `kubectl describe externalsecret payment-db-secret -n cnpe-eso-test`.
-2.  Observe the status condition `SecretSynced` is `False`.
-3.  Read the error message: `key "pass_word" not found`.
-4.  Edit the object: `kubectl edit externalsecret payment-db-secret -n cnpe-eso-test`.
-5.  Change `pass_word` to `password`.
+## Verification
+
+```bash
+kubectl get externalsecret payment-db-secret -n cnpe-eso-test
+kubectl get secret payment-db-connection -n cnpe-eso-test -o jsonpath='{.data.DB_PASSWORD}' | base64 -d
+```
+
+The ExternalSecret reports `SecretSynced`, and the Secret contains the decoded password.
+
+## Key Concepts
+
+1. **`remoteRef.property`** selects a field out of a structured (JSON) value; without it
+   the whole value lands in the key.
+2. **A single bad entry fails the whole ExternalSecret** — ESO writes the target Secret
+   atomically rather than partially.
+3. **`creationPolicy: Owner`** makes ESO own the Secret, so deleting the ExternalSecret
+   garbage-collects it.
+4. **`refreshInterval`** controls re-read cadence; a fix is picked up on the next
+   reconcile, not only at the interval.

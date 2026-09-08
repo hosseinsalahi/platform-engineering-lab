@@ -5,7 +5,12 @@ metadata:
 spec:
   match:
     kinds:
-    - apiGroups: [""]
-      kinds: [Namespace]
+      - apiGroups: [""]
+        kinds: ["Namespace"]
+    excludedNamespaces:
+      - "kube-*"
+      - "kuttl-*"
+      - "gatekeeper-system"
+      - "local-path-storage"
   parameters:
-    labels: [team]
+    labels: ["team"]

@@ -1,3 +1,4 @@
+# The Constraint exists and requires the "team" label on Namespaces
 apiVersion: constraints.gatekeeper.sh/v1beta1
 kind: K8sRequiredLabels
 metadata:

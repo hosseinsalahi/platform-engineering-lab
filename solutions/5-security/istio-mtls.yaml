@@ -1,3 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: payment-api
+  namespace: payments
+  labels:
+    app: payment-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: payment-api
+  template:
+    metadata:
+      labels:
+        app: payment-api
+    spec:
+      containers:
+      - name: payment-api
+        image: hashicorp/http-echo
+        args: ["-text=payments", "-listen=:8080"]
+        ports:
+        - containerPort: 8080
+        resources:
+          requests:
+            cpu: 10m
+            memory: 32Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: payment-api
+  namespace: payments
+  labels:
+    app: payment-api
+spec:
+  selector:
+    app: payment-api
+  ports:
+  - name: http
+    port: 80
+    targetPort: 8080
+---
 apiVersion: security.istio.io/v1beta1
 kind: PeerAuthentication
 metadata:
@@ -17,36 +60,3 @@ spec:
   trafficPolicy:
     tls:
       mode: ISTIO_MUTUAL
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: payment-api
-  namespace: payments
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: payment-api
-  template:
-    metadata:
-      labels:
-        app: payment-api
-    spec:
-      containers:
-      - name: payment-api
-        image: nginx:1.25
-        ports:
-        - containerPort: 80
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: payment-api
-  namespace: payments
-spec:
-  selector:
-    app: payment-api
-  ports:
-  - port: 80
-    targetPort: 80

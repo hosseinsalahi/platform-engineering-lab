@@ -1,0 +1,20 @@
+# Both subsets still exist, and the canary wiring is intact
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+commands:
+  - script: |
+      kubectl get destinationrule echo -n cnpe-istio-canary \
+        -o jsonpath='{.spec.subsets[*].name}' | grep -q 'stable' 
+  - script: |
+      kubectl get destinationrule echo -n cnpe-istio-canary \
+        -o jsonpath='{.spec.subsets[*].name}' | grep -q 'canary'
+  # The DestinationRule host must name a Service that actually exists
+  - script: |
+      host=$(kubectl get destinationrule echo -n cnpe-istio-canary -o jsonpath='{.spec.host}')
+      kubectl get service "${host%%.*}" -n cnpe-istio-canary >/dev/null
+  # The Rollout is healthy and still owns the VirtualService route
+  - script: |
+      kubectl get rollout echo -n cnpe-istio-canary -o jsonpath='{.status.phase}' | grep -q Healthy
+  - script: |
+      kubectl get virtualservice echo -n cnpe-istio-canary \
+        -o jsonpath='{.spec.http[0].name}' | grep -q primary
