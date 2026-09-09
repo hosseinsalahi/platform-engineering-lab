@@ -1,0 +1,10 @@
+# Phase 2: the policy actually rejects a Deployment with no labels
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+timeout: 120
+commands:
+  - script: |
+      if kubectl create deployment unlabelled --image=nginx:1.25 -n cnpe-vap-test --dry-run=server >/dev/null 2>&1; then
+        echo "FAIL: a Deployment without a team label was admitted"
+        exit 1
+      fi

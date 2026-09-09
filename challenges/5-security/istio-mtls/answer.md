@@ -58,7 +58,7 @@ proxy traffic, and an unnamed port falls back to plain TCP, losing L7 features.
 ## Require mTLS on the server side
 
 ```yaml
-apiVersion: security.istio.io/v1beta1
+apiVersion: security.istio.io/v1
 kind: PeerAuthentication
 metadata:
   name: default
@@ -75,7 +75,7 @@ is what you use while migrating.
 ## Originate mTLS on the client side
 
 ```yaml
-apiVersion: networking.istio.io/v1beta1
+apiVersion: networking.istio.io/v1
 kind: DestinationRule
 metadata:
   name: payment-api-mtls

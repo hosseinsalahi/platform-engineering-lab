@@ -1,0 +1,31 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: cnpe-measurement
+---
+# BROKEN: these recording rules are supposed to give the platform team a
+# deployment-frequency and change-failure signal, but Prometheus never evaluates
+# them.
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: platform-dora-metrics
+  namespace: monitoring
+  # BUG 1: the Prometheus instance created by kube-prometheus-stack only selects
+  # PrometheusRule objects carrying its release label, so this one is ignored.
+  labels:
+    app: platform-metrics
+spec:
+  groups:
+    - name: platform.dora
+      interval: 30s
+      rules:
+        # BUG 2: a recording rule name must be a valid metric name (colons are
+        # conventional for recording rules; slashes are not allowed).
+        - record: platform/deployment_frequency:1h
+          expr: sum(changes(kube_deployment_status_observed_generation[1h]))
+        - record: platform:change_failure_ratio:1h
+          expr: |
+            sum(kube_pod_container_status_waiting_reason{reason="CrashLoopBackOff"})
+            /
+            clamp_min(sum(kube_pod_status_phase{phase="Running"}), 1)

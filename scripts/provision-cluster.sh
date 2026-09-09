@@ -108,8 +108,8 @@ is_installed() {
 }
 
 install_tekton_triggers_crds_only() {
-  local version="v0.29.1"
-  local release_url="https://storage.googleapis.com/tekton-releases/triggers/previous/${version}/release.yaml"
+  local version="v0.37.0"
+  local release_url="https://infra.tekton.dev/tekton-releases/triggers/previous/${version}/release.yaml"
 
   if kubectl get crd triggerbindings.triggers.tekton.dev >/dev/null 2>&1; then
     echo "      ✓ tekton triggers CRDs already present"
@@ -181,7 +181,7 @@ helm install jaeger jaegertracing/jaeger --version "$JAEGER_CHART_VERSION" -n ja
 helm install crossplane crossplane-stable/crossplane --version "$CROSSPLANE_CHART_VERSION" -n crossplane-system --create-namespace --timeout 3m >/dev/null 2>&1 &
 helm install istio-base istio/base --version "$ISTIO_CHART_VERSION" -n istio-system --create-namespace --timeout 3m >/dev/null 2>&1 &
 helm install external-secrets external-secrets/external-secrets --version "$EXTERNAL_SECRETS_CHART_VERSION" -n external-secrets --create-namespace --set installCRDs=true --timeout 3m >/dev/null 2>&1 &
-curl -fsSL https://storage.googleapis.com/tekton-releases/pipeline/previous/v0.65.2/release.yaml -o tekton-release.yaml
+curl -fsSL https://infra.tekton.dev/tekton-releases/pipeline/previous/v0.65.2/release.yaml -o tekton-release.yaml
 kubectl apply -f tekton-release.yaml >/dev/null 2>&1 &
 install_tekton_triggers_crds_only
 

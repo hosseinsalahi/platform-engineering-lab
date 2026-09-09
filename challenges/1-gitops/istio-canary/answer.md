@@ -21,7 +21,7 @@ detection, load balancer configuration) is quietly absent during a canary releas
 ## Fix the DestinationRule host
 
 ```yaml
-apiVersion: networking.istio.io/v1beta1
+apiVersion: networking.istio.io/v1
 kind: DestinationRule
 metadata:
   name: echo

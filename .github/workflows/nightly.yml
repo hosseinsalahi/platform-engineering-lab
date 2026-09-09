@@ -1,0 +1,88 @@
+name: Nightly challenge run
+
+# Provisions the full platform and replays every challenge's answer.md against
+# it. This is the only check that proves the challenges still work: preflight
+# validates YAML shape, and the PR smoke test covers one trivial challenge.
+#
+# It catches the two failure modes that are otherwise invisible until someone
+# sits down to use the repo:
+#   - an upstream chart drops an API version a challenge's setup.yaml uses
+#   - an answer stops producing the state its asserts require
+#
+# Scheduled and manual only: a full provision takes far too long for a PR gate.
+
+on:
+  schedule:
+    # 03:00 UTC daily
+    - cron: '0 3 * * *'
+  workflow_dispatch:
+    inputs:
+      challenge:
+        description: 'Solve only this challenge (e.g. 5-security/kyverno-policy). Leave blank for all.'
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  solve-all:
+    runs-on: ubuntu-latest
+    # A full provision plus 35 challenges; failing challenges burn their full
+    # KUTTL timeout, so leave generous headroom.
+    timeout-minutes: 180
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install PyYAML
+        run: pip install pyyaml
+
+      - name: Install platform tools
+        run: |
+          sudo ./scripts/install-cli.sh --apply
+          echo "/usr/local/bin" >> "$GITHUB_PATH"
+
+      - name: Provision cluster
+        run: ./scripts/provision-cluster.sh
+
+      - name: Record installed versions
+        run: |
+          {
+            echo "## Environment"
+            echo ""
+            echo '```'
+            kubectl version --short 2>/dev/null || kubectl version
+            echo ""
+            helm list -A
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Solve challenges
+        run: |
+          if [ -n "${{ inputs.challenge }}" ]; then
+            ./scripts/solve-all.sh --only "${{ inputs.challenge }}"
+          else
+            ./scripts/solve-all.sh
+          fi
+
+      - name: Upload logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: challenge-logs
+          path: .solve-all-logs/
+          retention-days: 14
+
+      - name: Cluster state on failure
+        if: failure()
+        run: |
+          echo "=== non-running pods ==="
+          kubectl get pods -A | awk 'NR==1 || ($4 != "Running" && $4 != "Completed")'
+          echo "=== helm releases ==="
+          helm list -A

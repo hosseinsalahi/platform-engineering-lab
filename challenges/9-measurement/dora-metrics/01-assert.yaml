@@ -1,0 +1,16 @@
+# Phase 2: both recording rules use valid metric names
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+timeout: 120
+commands:
+  - script: |
+      kubectl get prometheusrule platform-dora-metrics -n monitoring \
+        -o jsonpath='{.spec.groups[*].rules[*].record}' | grep -q 'platform:deployment_frequency:1h'
+  - script: |
+      kubectl get prometheusrule platform-dora-metrics -n monitoring \
+        -o jsonpath='{.spec.groups[*].rules[*].record}' | grep -q 'platform:change_failure_ratio:1h'
+  - script: |
+      if kubectl get prometheusrule platform-dora-metrics -n monitoring -o yaml | grep -q 'record: platform/'; then
+        echo "FAIL: a recording rule name still contains a slash"
+        exit 1
+      fi

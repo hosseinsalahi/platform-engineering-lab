@@ -1,0 +1,11 @@
+name: "Platform Measurement Domain Drill"
+totalMinutes: 15
+instructions:
+  - "Provision the lab first (recommended): `just provision-exam domain-measurement`."
+  - "Use `just domain-measurement` to run."
+sections:
+  - id: "measure-dora"
+    domain: "Measuring your Platform"
+    minutes: 15
+    challenge: "9-measurement/dora-metrics"
+    objective: "Get the DORA recording rules loaded and evaluated by Prometheus."

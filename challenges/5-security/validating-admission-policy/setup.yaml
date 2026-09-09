@@ -1,0 +1,38 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: cnpe-vap-test
+---
+# BROKEN: this policy is meant to require a "team" label on every Deployment in
+# cnpe-vap-test, but unlabelled Deployments are still being admitted.
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: require-team-label
+spec:
+  # BUG 1: an expression that errors is treated as "ignore" here, so every
+  # evaluation failure silently admits the object.
+  failurePolicy: Ignore
+  matchConstraints:
+    resourceRules:
+      - apiGroups: ["apps"]
+        apiVersions: ["v1"]
+        operations: ["CREATE", "UPDATE"]
+        resources: ["deployments"]
+  validations:
+    # BUG 2: indexing labels directly errors when the object has no labels at
+    # all, which is exactly the case this policy is supposed to catch.
+    - expression: "object.metadata.labels['team'] != ''"
+      message: "Deployments must carry a 'team' label."
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: require-team-label-binding
+spec:
+  policyName: require-team-label
+  validationActions: ["Deny"]
+  matchResources:
+    namespaceSelector:
+      matchLabels:
+        kubernetes.io/metadata.name: cnpe-vap-test

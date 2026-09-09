@@ -12,11 +12,14 @@ metadata:
   labels:
     tenant: beta
 ---
-# Simulated monitoring namespace (if not exists)
+# Stand-in for a monitoring tenant. Deliberately NOT named "monitoring": a
+# challenge that declares a shared platform namespace also deletes it on cleanup,
+# which would uninstall kube-prometheus-stack. The NetworkPolicy selects on the
+# purpose label, not the name, so the scenario is unchanged.
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: monitoring
+  name: cnpe-monitoring
   labels:
     purpose: monitoring
 ---

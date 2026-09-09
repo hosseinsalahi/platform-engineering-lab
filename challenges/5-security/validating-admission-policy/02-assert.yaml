@@ -1,0 +1,10 @@
+# Phase 3: a compliant Deployment is still admitted, and is running
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: checkout-api
+  namespace: cnpe-vap-test
+  labels:
+    team: payments
+status:
+  readyReplicas: 1

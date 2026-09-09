@@ -31,7 +31,7 @@ spec:
     targetPort: 5678
     protocol: TCP
 ---
-apiVersion: networking.istio.io/v1beta1
+apiVersion: networking.istio.io/v1
 kind: VirtualService
 metadata:
   name: echo
@@ -54,7 +54,7 @@ spec:
 # BUG: spec.host points at "echo", but no such Service exists — the stable Service is
 # named "echo-stable". Istio silently drops a DestinationRule whose host does not
 # resolve, so the subsets below are never applied to canary traffic.
-apiVersion: networking.istio.io/v1beta1
+apiVersion: networking.istio.io/v1
 kind: DestinationRule
 metadata:
   name: echo

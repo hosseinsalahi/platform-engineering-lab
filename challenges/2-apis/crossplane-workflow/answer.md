@@ -1,22 +1,25 @@
 # Solution: Implement Self-Service Provisioning Workflow
 
-## Solution (Crossplane v2 Pipeline Mode)
+## The API, the implementation, and the request
+
+Three objects. The XRD defines the API developers get, the Composition says what the
+platform builds when they use it, and the XR is a developer's actual request.
 
 ```bash
 kubectl apply -f - <<'EOF'
-# XRD - Defines the self-service API
-apiVersion: apiextensions.crossplane.io/v1
+# XRD - defines the self-service API.
+# apiextensions.crossplane.io/v2 with scope: Namespaced is the current model:
+# developers create the composite resource directly in their own namespace.
+apiVersion: apiextensions.crossplane.io/v2
 kind: CompositeResourceDefinition
 metadata:
   name: xdatabaserequests.platform.cnpe.io
 spec:
+  scope: Namespaced
   group: platform.cnpe.io
   names:
     kind: XDatabaseRequest
     plural: xdatabaserequests
-  claimNames:
-    kind: DatabaseRequest
-    plural: databaserequests
   versions:
     - name: v1
       served: true
@@ -36,7 +39,8 @@ spec:
                   enum: [postgres, mysql]
               required: [size, engine]
 ---
-# Composition - Uses v2 pipeline mode with function-patch-and-transform
+# Composition - what the platform builds for that API.
+# Composition is still apiextensions.crossplane.io/v1 in Crossplane 2.x.
 apiVersion: apiextensions.crossplane.io/v1
 kind: Composition
 metadata:
@@ -69,9 +73,9 @@ spec:
                       host: "db.internal"
                       port: "5432"
 ---
-# Test claim
+# A developer's request - a namespaced composite resource, created directly.
 apiVersion: platform.cnpe.io/v1
-kind: DatabaseRequest
+kind: XDatabaseRequest
 metadata:
   name: test-db
   namespace: cnpe-selfservice-test
@@ -81,24 +85,33 @@ spec:
 EOF
 ```
 
-## Crossplane v2 Changes
+## What "Crossplane v2" actually changed
 
-**Key differences from v1:**
-- Uses `mode: Pipeline` instead of `resources` field
-- Functions declared in `pipeline` array (function-patch-and-transform)
-- Resources defined in function `input` block
-- More flexible and composable than v1 resources
+Worth separating two things that are easy to conflate, because they arrived years apart:
 
-**Why pipeline mode?**
-- Functions can transform, validate, and generate resources dynamically
-- Multiple functions can be chained in sequence
-- Better separation of concerns (composition logic vs resource templates)
+- **Composition pipeline mode** (`mode: Pipeline`, composition functions) landed in
+  Crossplane 1.x. It replaced the old inline `spec.resources` array with a pipeline of
+  functions that can transform, validate and generate resources, and chain together.
+- **Crossplane v2** is the major release that changed the *resource model*. XRDs move to
+  `apiextensions.crossplane.io/v2` and gain `spec.scope`. Composite resources can now be
+  **namespaced**, and **claims are gone** — `claimNames` is not part of the v2 XRD API.
+
+Under v1, an XR was cluster-scoped and developers interacted with a namespaced *claim*
+that pointed at it — two kinds for one concept, which is what most of the confusion in
+Crossplane v1 was about. In v2 the developer creates the namespaced XR itself.
+
+v1 XRDs still work: they are treated as `scope: LegacyCluster`, which is cluster-scoped
+with claim support. That is a compatibility path, not the pattern to build on.
 
 ## Why This Matters
 
 Self-service provisioning enables:
-- **Developer autonomy**: Request resources without tickets
-- **Standardization**: Platform controls what gets created
-- **Guardrails**: XRD schema enforces valid inputs
-- **Abstraction**: Hide infrastructure complexity
-- **Composition Functions**: v2 pipeline mode provides powerful resource generation patterns
+
+- **Developer autonomy**: request resources without tickets
+- **Standardization**: the platform controls what actually gets created
+- **Guardrails**: the XRD schema rejects invalid input at the API, before anything is built
+- **Abstraction**: one small API hides the infrastructure behind it
+
+The XRD is the contract. Everything a developer can ask for, and everything they cannot,
+is expressed in that schema — which is why `enum` on `size` and `engine` is doing more
+work here than it looks.

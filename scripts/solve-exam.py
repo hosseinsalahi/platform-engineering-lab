@@ -327,6 +327,14 @@ def wait_for_crds(crd_names: List[str], timeout_seconds: int = 60) -> None:
         if res.returncode != 0:
             raise SystemExit(res.stderr.strip() or f"ERROR: CRD not established: {name}")
 
+    if crd_names:
+        # An Established CRD is not yet usable by kubectl if the client's cached
+        # discovery document predates it: kubectl keeps that document for ten
+        # minutes and will not refresh it just because a resource is missing, so
+        # creating the new custom resource fails with "the server could not find
+        # the requested resource". Listing api-resources rewrites the cache.
+        _run(["kubectl", "api-resources", "--request-timeout=30s"])
+
 
 def extract_crossplane_prereqs(answer_md_path: str) -> Tuple[str, List[str]]:
     """
@@ -364,12 +372,26 @@ def extract_crossplane_prereqs(answer_md_path: str) -> Tuple[str, List[str]]:
                 if kind == "CompositeResourceDefinition":
                     prereq_docs.append(doc.strip())
                     group_m = re.search(r"(?m)^\s*group:\s*([^\s]+)\s*$", doc)
-                    plural_m = re.search(
+                    # A v1 XRD with claims generates a CRD per claimNames.plural; every
+                    # XRD generates one for names.plural. Crossplane v2 dropped claims,
+                    # so names.plural is the only one there - wait for whichever exist,
+                    # or the answer races the generated CRD and the apply 404s.
+                    plurals = []
+                    claim_m = re.search(
                         r"(?ms)^\s*claimNames:\s*\n(?:[ \t].*\n)*?\s*plural:\s*([^\s]+)\s*$",
                         doc,
                     )
-                    if group_m and plural_m:
-                        generated_crds.append(f"{plural_m.group(1).strip()}.{group_m.group(1).strip()}")
+                    if claim_m:
+                        plurals.append(claim_m.group(1).strip())
+                    names_m = re.search(
+                        r"(?ms)^[ \t]*names:[ \t]*\n(?:[ \t].*\n)*?\s*plural:\s*([^\s]+)\s*$",
+                        doc,
+                    )
+                    if names_m:
+                        plurals.append(names_m.group(1).strip())
+                    if group_m:
+                        for plural in plurals:
+                            generated_crds.append(f"{plural}.{group_m.group(1).strip()}")
                 elif kind == "Composition":
                     prereq_docs.append(doc.strip())
 

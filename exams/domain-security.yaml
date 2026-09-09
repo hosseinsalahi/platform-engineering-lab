@@ -40,3 +40,8 @@ sections:
     minutes: 15
     challenge: "5-security/external-secrets"
     objective: "Troubleshoot External Secrets synchronization."
+  - id: "sec-vap"
+    domain: "Security (15%)"
+    minutes: 15
+    challenge: "5-security/validating-admission-policy"
+    objective: "Fix a ValidatingAdmissionPolicy that fails open."

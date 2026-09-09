@@ -40,6 +40,8 @@ Create `challenges/<domain>/<name>/` with:
 | `answer.md` | yes | Worked solution (see the contract below) |
 | `steps.txt` | no | Hints, one per line, formatted `0:First step description` |
 
+New domains need a `kuttl-test.yaml` in the domain directory (copy an existing one) and an `exams/domain-<name>.yaml` so `just domain-<name>` has something to run.
+
 Then wire it up:
 
 1. Add a recipe to the `justfile` in the matching domain section, using `_run`:
@@ -49,9 +51,14 @@ Then wire it up:
 3. Add a bullet to the domain list in `README.md` and update the challenge count.
 
 A challenge may place resources in a shared platform namespace (`monitoring`, for
-instance), but cleanup only ever deletes a namespace the challenge declares itself with
-`kind: Namespace` — see `extract_owned_namespace` in `scripts/solve-exam.py`. Never widen
-that: deleting a shared namespace uninstalls the platform component living in it.
+instance), but it must never **declare** one. Cleanup runs `kubectl delete -f setup.yaml`,
+so a setup that contains `kind: Namespace` named `monitoring` uninstalls
+kube-prometheus-stack when the challenge finishes. Use a challenge-scoped name (`cnpe-*`)
+and select the namespace by label if the scenario needs to reference it. `just preflight`
+enforces this against a list of reserved names.
+
+Relatedly, the namespace-delete step only ever removes a namespace the challenge declares
+itself — see `extract_owned_namespace` in `scripts/solve-exam.py`. Never widen that.
 
 `setup.yaml` must not carry a top-level `status:` block, and any custom resource must
 appear after its CRD in the same file — `just preflight` enforces both.
@@ -77,6 +84,12 @@ extractor walks the file section by section and builds a shell script:
 - Interactive commands (`kubectl edit`, `vim`, …) and nested `just` calls are stripped;
   `kubectl get/describe/logs` get `|| true` appended. An answer whose only executable
   content is diagnostics extracts to a script that cannot pass the asserts.
+
+The nightly `Nightly challenge run` workflow replays every answer against a freshly
+provisioned cluster (`./scripts/solve-all.sh`, also available as `just solve-all`). That
+is the only check that proves the challenges still work — `preflight` validates YAML shape
+and the PR smoke test covers one trivial challenge. If you have a cluster up, run
+`just solve-all --only <domain>/<challenge>` before pushing.
 
 Check what your answer produces before pushing:
 

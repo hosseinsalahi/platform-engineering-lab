@@ -82,7 +82,7 @@ data:
       "time": {"from": "now-1h", "to": "now"},
       "timepicker": {},
       "timezone": "",
-      "title": "CNPE Apps Dashboard",
+      "title": "Platform Apps Dashboard",
       "uid": "cnpe-apps",
       "version": 1
     }

@@ -3,7 +3,6 @@ kind: ClusterPolicy
 metadata:
   name: require-memory-limits
 spec:
-  validationFailureAction: Enforce
   background: true
   rules:
   - name: require-memory-limits
@@ -15,6 +14,7 @@ spec:
           namespaces:
           - cnpe-security-test
     validate:
+      failureAction: Enforce
       message: "Memory limits are required for all containers."
       pattern:
         spec:
