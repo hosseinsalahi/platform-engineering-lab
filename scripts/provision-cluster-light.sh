@@ -14,6 +14,8 @@ trap on_error ERR
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
+# shellcheck source=scripts/chart-versions.env
+source "${SCRIPT_DIR}/chart-versions.env"
 CLUSTER_NAME="${CNPE_CLUSTER_NAME:-battleground}"
 KIND_CONTEXT="kind-${CLUSTER_NAME}"
 
@@ -103,7 +105,7 @@ if want_tool opencost && ! want_tool prometheus-stack; then
   TOOLS_CSV="${TOOLS_CSV},prometheus-stack"
 fi
 
-echo "=== CNPE Lab Cluster Provisioning (Light) ==="
+echo "=== Battleground Lab Cluster Provisioning (Light) ==="
 echo "Tools: ${TOOLS_CSV}"
 echo ""
 
@@ -211,14 +213,14 @@ PY
   kubectl delete deployment -n tekton-pipelines tekton-triggers-core-interceptors --ignore-not-found >/dev/null 2>&1 || true
 }
 
-want_tool argocd && install_helm argocd argo/argo-cd argocd 5m
-want_tool argo-rollouts && install_helm argo-rollouts argo/argo-rollouts argo-rollouts 3m
-want_tool kyverno && install_helm kyverno kyverno/kyverno kyverno 5m
-want_tool gatekeeper && install_helm gatekeeper gatekeeper/gatekeeper gatekeeper-system 3m
-want_tool jaeger && install_helm jaeger jaegertracing/jaeger jaeger 3m
-want_tool crossplane && install_helm crossplane crossplane-stable/crossplane crossplane-system 3m
-want_tool external-secrets && install_helm external-secrets external-secrets/external-secrets external-secrets 3m --set installCRDs=true
-want_tool metrics-server && install_helm metrics-server metrics-server/metrics-server kube-system 3m \
+want_tool argocd && install_helm argocd argo/argo-cd argocd 5m --version "$ARGOCD_CHART_VERSION"
+want_tool argo-rollouts && install_helm argo-rollouts argo/argo-rollouts argo-rollouts 3m --version "$ARGO_ROLLOUTS_CHART_VERSION"
+want_tool kyverno && install_helm kyverno kyverno/kyverno kyverno 5m --version "$KYVERNO_CHART_VERSION"
+want_tool gatekeeper && install_helm gatekeeper gatekeeper/gatekeeper gatekeeper-system 3m --version "$GATEKEEPER_CHART_VERSION"
+want_tool jaeger && install_helm jaeger jaegertracing/jaeger jaeger 3m --version "$JAEGER_CHART_VERSION"
+want_tool crossplane && install_helm crossplane crossplane-stable/crossplane crossplane-system 3m --version "$CROSSPLANE_CHART_VERSION"
+want_tool external-secrets && install_helm external-secrets external-secrets/external-secrets external-secrets 3m --version "$EXTERNAL_SECRETS_CHART_VERSION" --set installCRDs=true
+want_tool metrics-server && install_helm metrics-server metrics-server/metrics-server kube-system 3m --version "$METRICS_SERVER_CHART_VERSION" \
   --set "args={--kubelet-insecure-tls,--kubelet-preferred-address-types=InternalIP\\,ExternalIP\\,Hostname}"
 
 if want_tool tekton; then
@@ -238,6 +240,7 @@ if want_tool prometheus-stack; then
   echo "      Installing monitoring stack (this may take a few minutes)..."
   if ! helm status prometheus-stack -n monitoring >/dev/null 2>&1; then
     if ! helm install prometheus-stack prometheus-community/kube-prometheus-stack \
+      --version "$PROMETHEUS_STACK_CHART_VERSION" \
       -n monitoring --create-namespace --timeout 8m --wait \
       --set prometheusOperator.admissionWebhooks.enabled=false \
       --set prometheusOperator.admissionWebhooks.patch.enabled=false \
@@ -245,6 +248,7 @@ if want_tool prometheus-stack; then
       echo "      ⚠ Prometheus stack install failed, retrying..."
       helm uninstall prometheus-stack -n monitoring --ignore-not-found >/dev/null 2>&1
       helm install prometheus-stack prometheus-community/kube-prometheus-stack \
+      --version "$PROMETHEUS_STACK_CHART_VERSION" \
         -n monitoring --create-namespace --timeout 8m --wait \
         --set prometheusOperator.admissionWebhooks.enabled=false \
         --set prometheusOperator.admissionWebhooks.patch.enabled=false \
@@ -257,14 +261,14 @@ fi
 
 if want_tool istio; then
   echo "      Installing istio..."
-  install_helm istio-base istio/base istio-system 3m
-  install_helm istiod istio/istiod istio-system 5m
+  install_helm istio-base istio/base istio-system 3m --version "$ISTIO_CHART_VERSION"
+  install_helm istiod istio/istiod istio-system 5m --version "$ISTIO_CHART_VERSION"
 fi
 
 if want_tool opencost; then
   echo "      Installing opencost..."
   if ! helm status opencost -n opencost >/dev/null 2>&1; then
-    helm install opencost opencost/opencost -n opencost --create-namespace \
+    helm install opencost opencost/opencost --version "$OPENCOST_CHART_VERSION" -n opencost --create-namespace \
       --set opencost.prometheus.internal.enabled=true \
       --set opencost.prometheus.internal.serviceName=prometheus-stack-kube-prom-prometheus \
       --set opencost.prometheus.internal.namespaceName=monitoring \

@@ -1,4 +1,4 @@
-name: "CNPE Exam 2"
+name: "Practice Set 2"
 totalMinutes: 120
 instructions:
   - "Ensure required platform components are installed (cluster + GitOps + CI/CD + policy + observability)."

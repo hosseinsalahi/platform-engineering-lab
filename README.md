@@ -236,16 +236,35 @@ challenges/1-gitops/broken-sync/
 - **Use the docs**: Each challenge README links to relevant documentation
 - **Check steps.txt**: Hints available if stuck
 
-## Curriculum Alignment
+## Relationship to the CNPA Certification
 
-Based on cloud-native platform engineering best practices:
+This repo is a **hands-on lab**, not an exam simulator. It is worth being precise about
+that, because the two are different things.
 
-- GitOps and Continuous Delivery (25%)
-- Platform APIs and Self-Service (25%)
-- Observability and Operations (20%)
-- Platform Architecture (15%)
-- Security and Policy Enforcement (15%)
-- Bonus domains: Scalability, Packaging
+The relevant certification is the CNCF/Linux Foundation
+[Certified Cloud Native Platform Engineering Associate (CNPA)](https://www.cncf.io/training/certification/cnpa/),
+which is an online, proctored, **multiple-choice** exam — there is no practical component
+to simulate. Working through these challenges is a good way to *understand* the material;
+it is not a mock exam, and the per-challenge timer here is a focus device, not a
+reproduction of exam conditions.
+
+CNPA's published domains, and where this repo lands against them:
+
+| CNPA domain | Weight | Covered here |
+|---|---|---|
+| Platform Engineering Core Fundamentals | 36% | Partially — `4-architecture`, `6-scalability`, `7-packaging` cover the practical side; the conceptual material is not exercised |
+| Platform Observability, Security and Conformance | 20% | Yes — `3-observability` and `5-security` |
+| Continuous Delivery & Platform Engineering | 16% | Yes — `1-gitops` |
+| Platform APIs and Provisioning Infrastructure | 12% | Yes — `2-apis` |
+| IDPs and Developer Experience | 8% | **No challenges** |
+| Measuring your Platform | 8% | **No challenges** |
+
+So roughly 16% of the exam has no challenge here at all, and the largest domain is only
+partly exercised. If you are preparing for CNPA, use this alongside the official
+curriculum rather than instead of it.
+
+The seven directories under `challenges/` are organised by practical subject, not by CNPA
+weighting — they are sized by what makes a good hands-on scenario.
 
 ## License
 

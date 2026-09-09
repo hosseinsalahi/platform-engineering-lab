@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# CNPE Exam Runner
+# Timed practice-set runner
 # Interactive exam navigation matching linux-battleground design
 
 set -Eeuo pipefail
@@ -451,11 +451,11 @@ run_exam() {
 
     # Display exam instructions
     echo -e "${BOLD}╔════════════════════════════════════════════════════════════════╗${NC}"
-    echo -e "${BOLD}║       CERTIFIED KUBERNETES PLATFORM ENGINEER (CNPE)            ║${NC}"
-    echo -e "${BOLD}║                       EXAMINATION                         ║${NC}"
+    echo -e "${BOLD}║          PLATFORM ENGINEER BATTLEGROUND                        ║${NC}"
+    echo -e "${BOLD}║                  TIMED PRACTICE SET                            ║${NC}"
     echo -e "${BOLD}╚════════════════════════════════════════════════════════════════╝${NC}"
     echo ""
-    echo -e "${CYAN}EXAM INFORMATION:${NC}"
+    echo -e "${CYAN}PRACTICE SET INFORMATION:${NC}"
     echo -e "  - Total Tasks: ${BOLD}$TOTAL_TASKS${NC}"
     echo -e "  - Time Limit: ${BOLD}$EXAM_TIME_MINUTES minutes${NC}"
     echo -e "  - Passing Score: ${BOLD}$PASSING_SCORE/$TOTAL_TASKS tasks ($PASSING_PERCENTAGE%)${NC}"
@@ -508,7 +508,7 @@ run_exam() {
         clear
 
         # Update terminal title with timer
-        echo -ne "\033]0;CNPE Exam | Task $TASK_NUM/$TOTAL_TASKS | Time: $(show_elapsed_time)\007"
+        echo -ne "\033]0;Practice Set | Task $TASK_NUM/$TOTAL_TASKS | Time: $(show_elapsed_time)\007"
 
         # Check time
         if is_time_up; then
@@ -646,7 +646,7 @@ run_exam() {
             l|L)
                 # List all tasks with status
                 clear
-                echo -ne "\033]0;CNPE Exam | Task Overview | Time: $(show_elapsed_time)\007"
+                echo -ne "\033]0;Practice Set | Task Overview | Time: $(show_elapsed_time)\007"
                 echo -e "${BOLD}╔════════════════════════════════════════════════════════════════╗${NC}"
                 echo -e "${BOLD}║                    TASK STATUS OVERVIEW                        ║${NC}"
                 echo -e "${BOLD}╚════════════════════════════════════════════════════════════════╝${NC}"
@@ -705,7 +705,7 @@ run_exam() {
     # Display final results
     clear
     # Reset terminal title
-    echo -ne "\033]0;CNPE Exam | Complete\007"
+    echo -ne "\033]0;Practice Set | Complete\007"
     END_TIME=$(date +%s)
     TOTAL_TIME=$((END_TIME - START_TIME))
     TIME_MINUTES=$((TOTAL_TIME / 60))
@@ -768,7 +768,7 @@ run_exam() {
         echo -e "${GREEN}${BOLD}║                                                                ║${NC}"
         echo -e "${GREEN}${BOLD}║                       YOU PASSED!                              ║${NC}"
         echo -e "${GREEN}${BOLD}║                                                                ║${NC}"
-        echo -e "${GREEN}${BOLD}║     You have successfully passed the CNPE Examination!   ║${NC}"
+        echo -e "${GREEN}${BOLD}║        All tasks completed within their time budget.           ║${NC}"
         echo -e "${GREEN}${BOLD}╚════════════════════════════════════════════════════════════════╝${NC}"
     else
         echo -e "${RED}${BOLD}╔════════════════════════════════════════════════════════════════╗${NC}"
@@ -787,7 +787,7 @@ run_exam() {
     local RESULTS_FILE
     RESULTS_FILE="${SCRIPT_DIR}/exam-results-$(date +%Y%m%d-%H%M%S).txt"
     {
-        echo "CNPE Exam Results"
+        echo "Practice Set Results"
         echo "======================"
         echo ""
         echo "Exam: $EXAM_NAME"

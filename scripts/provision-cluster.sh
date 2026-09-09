@@ -14,6 +14,8 @@ trap on_error ERR
 
 CLUSTER_NAME="${CNPE_CLUSTER_NAME:-battleground}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=scripts/chart-versions.env
+source "${SCRIPT_DIR}/chart-versions.env"
 MINIMAL=false
 
 usage() {
@@ -42,7 +44,7 @@ if kind get clusters 2>/dev/null | grep -q "^${CLUSTER_NAME}$"; then
   exit 0
 fi
 
-echo "=== CNPE Lab Cluster Provisioning ==="
+echo "=== Battleground Lab Cluster Provisioning ==="
 if [[ "$MINIMAL" == "true" ]]; then
   echo "Mode: Minimal (Cluster only, no platform tools)"
   echo "Estimated time: ~2 minutes"
@@ -171,14 +173,14 @@ show_progress() {
 }
 
 # Batch 1: Independent installs (with timeouts to prevent hangs)
-helm install argocd argo/argo-cd -n argocd --create-namespace --timeout 5m >/dev/null 2>&1 &
-helm install argo-rollouts argo/argo-rollouts -n argo-rollouts --create-namespace --timeout 3m >/dev/null 2>&1 &
-helm install kyverno kyverno/kyverno -n kyverno --create-namespace --timeout 5m >/dev/null 2>&1 &
-helm install gatekeeper gatekeeper/gatekeeper -n gatekeeper-system --create-namespace --timeout 3m >/dev/null 2>&1 &
-helm install jaeger jaegertracing/jaeger -n jaeger --create-namespace --timeout 3m >/dev/null 2>&1 &
-helm install crossplane crossplane-stable/crossplane -n crossplane-system --create-namespace --timeout 3m >/dev/null 2>&1 &
-helm install istio-base istio/base -n istio-system --create-namespace --timeout 3m >/dev/null 2>&1 &
-helm install external-secrets external-secrets/external-secrets -n external-secrets --create-namespace --set installCRDs=true --timeout 3m >/dev/null 2>&1 &
+helm install argocd argo/argo-cd --version "$ARGOCD_CHART_VERSION" -n argocd --create-namespace --timeout 5m >/dev/null 2>&1 &
+helm install argo-rollouts argo/argo-rollouts --version "$ARGO_ROLLOUTS_CHART_VERSION" -n argo-rollouts --create-namespace --timeout 3m >/dev/null 2>&1 &
+helm install kyverno kyverno/kyverno --version "$KYVERNO_CHART_VERSION" -n kyverno --create-namespace --timeout 5m >/dev/null 2>&1 &
+helm install gatekeeper gatekeeper/gatekeeper --version "$GATEKEEPER_CHART_VERSION" -n gatekeeper-system --create-namespace --timeout 3m >/dev/null 2>&1 &
+helm install jaeger jaegertracing/jaeger --version "$JAEGER_CHART_VERSION" -n jaeger --create-namespace --timeout 3m >/dev/null 2>&1 &
+helm install crossplane crossplane-stable/crossplane --version "$CROSSPLANE_CHART_VERSION" -n crossplane-system --create-namespace --timeout 3m >/dev/null 2>&1 &
+helm install istio-base istio/base --version "$ISTIO_CHART_VERSION" -n istio-system --create-namespace --timeout 3m >/dev/null 2>&1 &
+helm install external-secrets external-secrets/external-secrets --version "$EXTERNAL_SECRETS_CHART_VERSION" -n external-secrets --create-namespace --set installCRDs=true --timeout 3m >/dev/null 2>&1 &
 curl -fsSL https://storage.googleapis.com/tekton-releases/pipeline/previous/v0.65.2/release.yaml -o tekton-release.yaml
 kubectl apply -f tekton-release.yaml >/dev/null 2>&1 &
 install_tekton_triggers_crds_only
@@ -191,6 +193,7 @@ rm -f tekton-release.yaml
 echo ""
 echo "      Installing monitoring stack (this may take a few minutes)..."
 if ! helm install prometheus-stack prometheus-community/kube-prometheus-stack \
+    --version "$PROMETHEUS_STACK_CHART_VERSION" \
   -n monitoring --create-namespace --timeout 8m --wait \
   --set prometheusOperator.admissionWebhooks.enabled=false \
   --set prometheusOperator.admissionWebhooks.patch.enabled=false \
@@ -199,6 +202,7 @@ if ! helm install prometheus-stack prometheus-community/kube-prometheus-stack \
   echo "      ⚠ Prometheus stack install failed, retrying..."
   helm uninstall prometheus-stack -n monitoring --ignore-not-found >/dev/null 2>&1
   helm install prometheus-stack prometheus-community/kube-prometheus-stack \
+    --version "$PROMETHEUS_STACK_CHART_VERSION" \
     -n monitoring --create-namespace --timeout 8m --wait \
     --set prometheusOperator.admissionWebhooks.enabled=false \
     --set prometheusOperator.admissionWebhooks.patch.enabled=false \
@@ -209,13 +213,13 @@ echo "      ✓ monitoring stack installed"
 until show_progress 10; do sleep 2; done
 
 # Batch 2: Depends on istio-base
-helm install istiod istio/istiod -n istio-system --timeout 5m >/dev/null 2>&1 &
+helm install istiod istio/istiod --version "$ISTIO_CHART_VERSION" -n istio-system --timeout 5m >/dev/null 2>&1 &
 
 until show_progress 11; do sleep 2; done
 wait
 
 # Batch 3: Depends on prometheus
-helm install opencost opencost/opencost -n opencost --create-namespace \
+helm install opencost opencost/opencost --version "$OPENCOST_CHART_VERSION" -n opencost --create-namespace \
   --set opencost.prometheus.internal.enabled=true \
   --set opencost.prometheus.internal.serviceName=prometheus-stack-kube-prom-prometheus \
   --set opencost.prometheus.internal.namespaceName=monitoring \

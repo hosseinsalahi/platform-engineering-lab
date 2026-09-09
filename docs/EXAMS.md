@@ -1,6 +1,8 @@
 # Exams
 
-Two practice exams aligned to the CNPE domain weighting are provided under `exams/`.
+Two timed practice sets are provided under `exams/`. They bundle challenges into a single
+sitting with a per-task budget; they are not simulations of the CNPA exam, which is
+multiple-choice.
 
 ## Usage
 
