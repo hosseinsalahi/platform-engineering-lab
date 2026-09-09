@@ -148,6 +148,11 @@ exam-2 *ARGS:
 solve *ARGS:
   @python3 ./scripts/solve-exam.py {{ARGS}}
 
+# Solve every challenge in sequence and print a pass/fail table (needs a provisioned cluster).
+# This is what the nightly CI job runs.
+solve-all *ARGS:
+  ./scripts/solve-all.sh {{ARGS}}
+
 # ==================== Challenges ====================
 
 # List all challenges

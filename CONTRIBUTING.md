@@ -85,6 +85,12 @@ extractor walks the file section by section and builds a shell script:
   `kubectl get/describe/logs` get `|| true` appended. An answer whose only executable
   content is diagnostics extracts to a script that cannot pass the asserts.
 
+The nightly `Nightly challenge run` workflow replays every answer against a freshly
+provisioned cluster (`./scripts/solve-all.sh`, also available as `just solve-all`). That
+is the only check that proves the challenges still work — `preflight` validates YAML shape
+and the PR smoke test covers one trivial challenge. If you have a cluster up, run
+`just solve-all --only <domain>/<challenge>` before pushing.
+
 Check what your answer produces before pushing:
 
 ```bash

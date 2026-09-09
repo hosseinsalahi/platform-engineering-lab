@@ -124,11 +124,23 @@ just upgrade-cli
 
 ## CI
 
-Every PR runs a preflight validation in GitHub Actions to ensure all challenge setups and asserts are valid:
+Every PR runs preflight validation, link checking, yamllint and shellcheck, plus a smoke
+test that provisions a minimal cluster and solves `0-test/simple-pod`:
+
 ```bash
 python3 scripts/preflight.py
 ```
-See `.github/workflows/preflight.yml`.
+
+Nightly, a separate workflow provisions the full platform and replays every challenge's
+`answer.md` against it, failing if any challenge no longer passes its asserts. Run the
+same thing locally against your own cluster with:
+
+```bash
+just solve-all                                    # every challenge
+just solve-all --only 5-security/kyverno-policy   # just one
+```
+
+See `.github/workflows/preflight.yml` and `.github/workflows/nightly.yml`.
 
 ## Installed Components
 
