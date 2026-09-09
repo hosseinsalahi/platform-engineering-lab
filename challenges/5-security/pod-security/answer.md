@@ -1,63 +1,35 @@
-# Solution: Apply Pod Security Standards
+# Solution: Enforce Pod Security Standards
 
-## Phase 1: Apply PSS Labels
+Two halves: label the namespace so the built-in Pod Security admission controller
+enforces the `restricted` profile, then deploy a workload that actually satisfies it.
+
+## Label the namespace
 
 ```bash
 kubectl label namespace production \
   pod-security.kubernetes.io/enforce=restricted \
   pod-security.kubernetes.io/warn=restricted \
-  pod-security.kubernetes.io/audit=restricted
+  pod-security.kubernetes.io/audit=restricted \
+  --overwrite
 ```
 
-## Phase 2: Fix Deployment Security Context
+`enforce` rejects violating pods, `warn` returns a message to the client, and `audit`
+records an annotation in the audit log. Setting all three is the usual production
+pattern: the same profile, three levels of feedback.
 
-```bash
-kubectl edit deployment api-server -n production
-```
+## Deploy a compliant workload
 
-Update the pod spec:
+`restricted` demands every one of these — dropping any single field makes the pod
+rejected at admission:
+
 ```yaml
-spec:
-  template:
-    spec:
-      securityContext:
-        runAsNonRoot: true
-        runAsUser: 1000
-        seccompProfile:
-          type: RuntimeDefault
-      containers:
-        - name: api
-          image: nginx:1.25
-          ports:
-            - containerPort: 8080
-          resources:
-            requests:
-              cpu: "50m"
-              memory: "64Mi"
-            limits:
-              cpu: "100m"
-              memory: "128Mi"
-          securityContext:
-            allowPrivilegeEscalation: false
-            capabilities:
-              drop:
-                - ALL
-```
-
-## Complete One-liner
-
-```bash
-kubectl label namespace production \
-  pod-security.kubernetes.io/enforce=restricted \
-  pod-security.kubernetes.io/warn=restricted \
-  pod-security.kubernetes.io/audit=restricted --overwrite
-
-kubectl apply -f - <<'EOF'
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: api-server
   namespace: production
+  labels:
+    app: api-server
 spec:
   replicas: 1
   selector:
@@ -74,49 +46,48 @@ spec:
         seccompProfile:
           type: RuntimeDefault
       containers:
-        - name: api
-          image: nginx:1.25
-          ports:
-            - containerPort: 8080
-          resources:
-            requests:
-              cpu: "50m"
-              memory: "64Mi"
-            limits:
-              cpu: "100m"
-              memory: "128Mi"
-          securityContext:
-            allowPrivilegeEscalation: false
-            capabilities:
-              drop:
-                - ALL
-EOF
+      - name: api-server
+        image: busybox:1.36
+        command: ["sh", "-c", "sleep 3600"]
+        securityContext:
+          allowPrivilegeEscalation: false
+          runAsNonRoot: true
+          capabilities:
+            drop: ["ALL"]
+          seccompProfile:
+            type: RuntimeDefault
+        resources:
+          requests:
+            cpu: 10m
+            memory: 16Mi
+          limits:
+            cpu: 50m
+            memory: 64Mi
+```
+
+Note the image choice: `restricted` forbids running as root, so an image whose default
+user is root (stock `nginx`, for one) fails to start even with `runAsNonRoot: true` — the
+kubelet refuses to run it. Pick an image that runs unprivileged, or set an explicit
+`runAsUser`.
+
+## Verification
+
+```bash
+kubectl get ns production --show-labels
+kubectl rollout status deploy/api-server -n production
+```
+
+To see enforcement reject something, try a bare privileged pod:
+
+```bash
+kubectl run rejected --image=nginx -n production
 ```
 
 ## Key Concepts
 
-1. **Pod Security Standards Levels**:
-   - `privileged`: Unrestricted (dangerous)
-   - `baseline`: Minimally restrictive, prevents known escalations
-   - `restricted`: Heavily restricted, security best practices
-
-2. **PSS Label Modes**:
-   - `enforce`: Reject non-compliant pods
-   - `warn`: Allow but warn
-   - `audit`: Log to audit log
-
-3. **Restricted Level Requirements**:
-   - runAsNonRoot: true
-   - Seccomp profile set
-   - No privilege escalation
-   - Drop all capabilities
-   - No hostPath, hostNetwork, etc.
-
-## Verification Commands
-
-```bash
-kubectl get ns production --show-labels
-kubectl describe ns production | grep pod-security
-kubectl get pods -n production
-kubectl auth can-i create pods -n production --as=system:serviceaccount:production:default
-```
+1. **Three modes**: `enforce` blocks, `audit` records, `warn` messages the client. Roll a
+   profile out as `warn`+`audit` first, then flip to `enforce`.
+2. **Three profiles**: `privileged` (no restrictions), `baseline` (blocks known
+   escalations), `restricted` (hardened — non-root, seccomp, no added capabilities).
+3. **Pod Security is namespace-scoped and built in** — no webhook to install, unlike
+   Kyverno or Gatekeeper, but also no cluster-wide policy and no exceptions mechanism.

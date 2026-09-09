@@ -1,55 +1,72 @@
 # Platform Engineer Battleground
 
-Hands-on, repo-first scenarios to practice platform engineering skills: Kubernetes, IaC, CI/CD, observability, security, and developer experience.
+Hands-on challenges for cloud-native platform engineering. Each challenge puts a broken
+or incomplete platform component on a real Kubernetes cluster and validates your fix with
+[KUTTL](https://kuttl.dev/) assertions on a timer.
 
-## What This Is
-- A set of practical “battles” (scenarios) with clear goals and acceptance criteria
-- A place to experiment safely and document learnings
-- A TechDocs home page (for Backstage) when you wire it up
-
-## Who It’s For
-- Platform/DevOps/SRE engineers leveling up through deliberate practice
-- App engineers who want to understand platform primitives and workflows
+32 challenges across 7 domains, weighted to the CNPE curriculum.
 
 ## Quick Start
-Prereqs (adjust to your repo):
-- Docker
-- `kubectl`
-- A local cluster (`kind` or `minikube`)
-- Optional: `helm`, `terraform`, `jq`
 
-Run (adjust):
-- `make help`
-- `make setup`
-- `make test`
+```bash
+just check                                  # verify required tooling
+just provision                              # kind cluster + all platform tools (~10-15 min)
+just gitops-fix                             # run a single challenge
+just destroy                                # cleanup
+```
 
-## How To Use This Repo
-1. Pick a scenario from **Scenarios**
-2. Read the goal + constraints
-3. Implement the change
-4. Validate using the provided checks
-5. Capture learnings / notes
+Lighter alternatives to a full provision:
 
-## Scenarios
-- **Getting Started**: bootstrap + sanity checks
-- **Kubernetes**: workloads, networking, RBAC, policies
-- **CI/CD**: pipelines, artifacts, environments
-- **Observability**: metrics, logs, traces, SLOs
-- **Security**: supply chain, secrets, hardening
-- **DX**: templates, golden paths, docs, automation
+```bash
+just provision-exam exam-1                  # only the tools that exam needs
+just provision-minimal                      # cluster only
+```
 
-> Add links once the folders exist, e.g. `- [Kubernetes](kubernetes/README.md)`
+See the [README](https://github.com/Liquid-Reply/platform-engineer-battleground#readme)
+for prerequisites, CLI installation, and Podman setup on macOS.
 
-## Repo Structure
-- `docs/` – documentation (this site)
-- `scenarios/` – hands-on challenges
-- `scripts/` – helper scripts
-- `infra/` – IaC, cluster bootstrap, etc.
+## How a Challenge Works
 
-## Contributing
-- Keep scenarios small and measurable (clear “done” checks)
-- Prefer automation + reproducibility over manual steps
-- Add/update docs when behavior changes
+Each challenge directory contains:
+
+| File | Purpose |
+|------|---------|
+| `setup.yaml` | Creates the broken state; applied first |
+| `NN-assert.yaml` | Progressive KUTTL assertions, one per phase |
+| `README.md` | Scenario, task, and allowed documentation |
+| `steps.txt` | Optional hints, `"0:First step description"` |
+| `answer.md` | Worked solution — also the machine-executable answer |
+
+KUTTL applies `setup.yaml`, then waits for each assertion to become true while you work
+in another terminal. The default timeout is 7 minutes per challenge, matching exam
+conditions. Resources are cleaned up when the test completes.
+
+## Domains
+
+| # | Domain | Weight | Challenges |
+|---|--------|--------|-----------|
+| 1 | GitOps and Continuous Delivery | 25% | 6 |
+| 2 | Platform APIs and Self-Service | 25% | 4 |
+| 3 | Observability and Operations | 20% | 6 |
+| 4 | Platform Architecture | 15% | 6 |
+| 5 | Security and Policy Enforcement | 15% | 7 |
+| 6 | Scalability | bonus | 1 |
+| 7 | Packaging | bonus | 2 |
+
+Run a whole domain with `just domain-gitops`, `just domain-security`, and so on, or list
+everything with `just list`.
+
+## Where To Go Next
+
+- **[Exams](EXAMS.md)** — timed mock exams and per-domain drills
+- **[Solutions Guide](SOLUTIONS.md)** — the concepts behind each domain, with answers
+
+## Platform Components
+
+`just provision` installs ArgoCD, Argo Rollouts, Tekton, Kyverno, Gatekeeper, External
+Secrets, Prometheus, Grafana, Jaeger, Istio, Crossplane, and OpenCost onto a local kind
+cluster (1 control-plane + 2 workers).
 
 ## Notes
-This is a learning environment—treat outputs as untrusted and avoid using real secrets.
+
+This is a learning environment. Treat outputs as untrusted and never use real secrets.

@@ -40,6 +40,7 @@ jobs:
           yamllint -c .yamllint .
 
   integration-test:
+    needs: preflight
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

@@ -1,34 +1,14 @@
-apiVersion: networking.istio.io/v1alpha3
-kind: VirtualService
-metadata:
-  name: echo
-spec:
-  gateways:
-  - echo-gateway
-  hosts:
-  - "*"
-  http:
-  - name: primary
-    route:
-    - destination:
-        host: echo-stable
-        subset: stable
-      weight: 100
-    - destination:
-        host: echo-canary
-        subset: canary
-      weight: 0
----
-apiVersion: networking.istio.io/v1alpha3
+apiVersion: networking.istio.io/v1beta1
 kind: DestinationRule
 metadata:
   name: echo
+  namespace: cnpe-istio-canary
 spec:
-  host: echo
+  host: echo-stable
   subsets:
   - name: stable
     labels:
       app: echo
   - name: canary
     labels:
-      app: echo-canary
+      app: echo

@@ -1,71 +1,77 @@
 # Solution: Fix Broken Kyverno Policy
 
-## Diagnosis with kyverno CLI
+## Diagnosis
 
 ```bash
 kubectl get clusterpolicy require-memory-limits -o yaml
-kyverno apply require-memory-limits.yaml --resource pod.yaml  # test locally
 ```
 
-## Phase 1: Fix Policy Action
+Two bugs are visible in the policy spec:
 
-Change `validationFailureAction` from `Audit` to `Enforce`:
+1. `validationFailureAction: Audit` only records violations in a PolicyReport; it never
+   rejects a Pod. It must be `Enforce`.
+2. `match.any[0].resources.namespaces` lists `cnpe-other-namespace`, so the rule never
+   selects Pods in `cnpe-security-test`.
 
-```bash
-kubectl edit clusterpolicy require-memory-limits
-```
+## Phases 1 and 2: Apply the corrected policy
 
-Change:
+Both bugs live in the same object, so a single apply fixes them:
+
 ```yaml
-spec:
-  validationFailureAction: Audit
-```
-
-To:
-```yaml
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: require-memory-limits
 spec:
   validationFailureAction: Enforce
-```
-
-## Phase 2: Fix Namespace Selector
-
-Change the namespace from `cnpe-other-namespace` to `cnpe-security-test`:
-
-```bash
-kubectl edit clusterpolicy require-memory-limits
-```
-
-Change:
-```yaml
+  background: true
+  rules:
+  - name: require-memory-limits
     match:
       any:
       - resources:
-          namespaces:
-          - cnpe-other-namespace
-```
-
-To:
-```yaml
-    match:
-      any:
-      - resources:
+          kinds:
+          - Pod
           namespaces:
           - cnpe-security-test
+    validate:
+      message: "Memory limits are required for all containers."
+      pattern:
+        spec:
+          containers:
+          - resources:
+              limits:
+                memory: "?*"
 ```
 
-## Phase 3: Verify
+## Phase 3: Admit a compliant Pod
 
-Test that pods without limits are rejected:
+The final assert requires a running Pod that satisfies the policy, proving the rule
+admits valid workloads rather than blocking everything:
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: compliant-pod
+  namespace: cnpe-security-test
+spec:
+  containers:
+  - name: nginx
+    image: nginx:1.25
+    resources:
+      limits:
+        memory: "128Mi"
+```
+
+## Verify the policy blocks violations
+
+A Pod without limits must now be rejected by the admission webhook:
+
 ```bash
 kubectl run test-pod --image=nginx -n cnpe-security-test
-# Should fail with: "Memory limits are required for all containers."
-```
-
-Test that pods with limits are allowed:
-```bash
-kubectl run compliant-pod --image=nginx -n cnpe-security-test \
-  --overrides='{"spec":{"containers":[{"name":"compliant-pod","image":"nginx","resources":{"limits":{"memory":"128Mi"}}}]}}'
-# Should succeed
+# Expected: admission webhook denies the request with
+# "Memory limits are required for all containers."
 ```
 
 ## Key Concepts
@@ -75,10 +81,10 @@ kubectl run compliant-pod --image=nginx -n cnpe-security-test \
 3. **validate.pattern**: Uses Kyverno's pattern matching to check resource fields
 4. `?*` means "any non-empty value must be present"
 
-## Useful kyverno Commands
+## Reference: kyverno commands
 
 ```bash
-kubectl get clusterpolicy                    # List policies
-kubectl get policyreport -A                  # View policy reports
+kubectl get clusterpolicy                      # List policies
+kubectl get policyreport -A                    # View policy reports
 kyverno apply policy.yaml --resource pod.yaml  # Test policy locally
 ```

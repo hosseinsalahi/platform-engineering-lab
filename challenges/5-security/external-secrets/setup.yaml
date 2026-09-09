@@ -3,7 +3,7 @@ kind: Namespace
 metadata:
   name: cnpe-eso-test
 ---
-apiVersion: external-secrets.io/v1beta1
+apiVersion: external-secrets.io/v1
 kind: ClusterSecretStore
 metadata:
   name: global-fake-store
@@ -12,13 +12,9 @@ spec:
     fake:
       data:
       - key: "/prod/payment-service/db"
-        version: "v1"
-        valueMap:
-          username: "admin"
-          password: "super-secure-password-123"
-          host: "db.production.svc"
+        value: '{"username":"admin","password":"super-secure-password-123","host":"db.production.svc"}'
 ---
-apiVersion: external-secrets.io/v1beta1
+apiVersion: external-secrets.io/v1
 kind: ExternalSecret
 metadata:
   name: payment-db-secret

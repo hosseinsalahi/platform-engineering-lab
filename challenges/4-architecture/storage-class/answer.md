@@ -7,7 +7,8 @@ StorageClass is immutable for reclaimPolicy and volumeBindingMode. You must dele
 ## Phase 1 & 2: Recreate StorageClass
 
 ```bash
-kubectl delete storageclass fast-storage
+# --ignore-not-found so this works whether or not the class already exists
+kubectl delete storageclass fast-storage --ignore-not-found=true
 
 kubectl apply -f - <<'EOF'
 apiVersion: storage.k8s.io/v1

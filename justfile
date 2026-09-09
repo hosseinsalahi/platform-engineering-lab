@@ -278,6 +278,9 @@ security-mtls: (_run "5-security" "istio-mtls")
 # Create Gatekeeper constraint
 security-gatekeeper: (_run "5-security" "gatekeeper-constraint")
 
+# Fix broken ExternalSecret sync
+security-eso: (_run "5-security" "external-secrets")
+
 # ==================== Scalability Domain ====================
 
 # Run all Scalability challenges

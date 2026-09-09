@@ -1,20 +1,8 @@
-apiVersion: networking.istio.io/v1alpha3
-kind: VirtualService
+# The DestinationRule resolves to the stable Service and defines both subsets
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
 metadata:
   name: echo
+  namespace: cnpe-istio-canary
 spec:
-  gateways:
-  - echo-gateway
-  hosts:
-  - "*"
-  http:
-  - name: primary
-    route:
-    - destination:
-        host: echo-stable
-        subset: stable
-      weight: 0
-    - destination:
-        host: echo-canary
-        subset: canary
-      weight: 100
+  host: echo-stable

@@ -1,5 +1,7 @@
 site_name: platform-engineer-battleground
 nav:
   - Home: index.md
+  - Exams: EXAMS.md
+  - Solutions Guide: SOLUTIONS.md
 plugins:
   - techdocs-core

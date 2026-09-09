@@ -1,0 +1,25 @@
+# The Constraint is actually enforced, and system/test namespaces are excluded
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+commands:
+  # A namespace without the "team" label must be rejected by the webhook
+  - script: |
+      if kubectl create namespace gk-probe-no-team --dry-run=server >/dev/null 2>&1; then
+        echo "FAIL: namespace without a team label was admitted"
+        exit 1
+      fi
+  # A namespace carrying the label must still be admitted
+  - script: |
+      kubectl create namespace gk-probe-with-team --dry-run=server -o yaml \
+        --save-config=false >/dev/null 2>&1 || true
+      cat <<'NS' | kubectl apply --dry-run=server -f - >/dev/null
+      apiVersion: v1
+      kind: Namespace
+      metadata:
+        name: gk-probe-with-team
+        labels:
+          team: platform
+      NS
+  # Test-harness namespaces must be excluded, or the constraint locks out KUTTL itself
+  - script: |
+      kubectl create namespace kuttl-probe-excluded --dry-run=server >/dev/null

@@ -149,7 +149,7 @@ The provisioning script installs these platform engineering tools:
 
 ## Challenges
 
-31 challenges across 7 domains. See [docs/SOLUTIONS.md](docs/SOLUTIONS.md) for concepts and answers.
+32 challenges across 7 domains. See [docs/SOLUTIONS.md](docs/SOLUTIONS.md) for concepts and answers.
 
 ### 1: GitOps and Continuous Delivery (25%)
 - **broken-sync**: Diagnose and fix an Argo CD application that is out of sync.
@@ -166,6 +166,7 @@ The provisioning script installs these platform engineering tools:
 - **crossplane-workflow**: Create a self-service workflow using Crossplane.
 
 ### 3: Observability and Operations (20%)
+- **broken-servicemonitor**: Fix a ServiceMonitor selector so Prometheus scrapes the target.
 - **cost-allocation**: Configure OpenCost for cost allocation.
 - **grafana-dashboard**: Troubleshoot a broken Grafana dashboard.
 - **prometheus-alert**: Create a Prometheus alerting rule.
@@ -178,6 +179,7 @@ The provisioning script installs these platform engineering tools:
 - **pod-disruption-budget**: Fix a PodDisruptionBudget selector to prevent downtime during maintenance.
 - **storage-class**: Configure a StorageClass for stateful workloads.
 - **service-mesh**: Configure Istio for traffic splitting.
+- **istio-fault-injection**: Inject faults with an Istio VirtualService to test resilience.
 
 ### 5: Security and Policy Enforcement (15%)
 - **kyverno-policy**: Troubleshoot a broken Kyverno policy.
@@ -186,6 +188,7 @@ The provisioning script installs these platform engineering tools:
 - **pod-security**: Enforce Pod Security Standards.
 - **istio-mtls**: Configure strict mTLS with Istio.
 - **gatekeeper-constraint**: Create a Gatekeeper Constraint to enforce a policy.
+- **external-secrets**: Fix a broken ExternalSecret so the Secret syncs from the store.
 
 ### 6: Scalability (Bonus)
 - **hpa-cpu**: Configure Horizontal Pod Autoscaling based on CPU.
@@ -250,7 +253,5 @@ MIT License - See [LICENSE](LICENSE) for details.
 
 ## Contributing
 
-Contributions welcome! Please:
-1. Run `just preflight` to validate your changes
-2. Ensure all challenges pass locally
-3. Update documentation as needed
+Contributions welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for the challenge layout,
+the `answer.md` contract used by `just solve`, and the checks CI runs.

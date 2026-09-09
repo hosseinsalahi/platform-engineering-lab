@@ -520,6 +520,27 @@ def extract_namespace_from_setup(setup_yaml_path: str) -> str:
     return m2.group(1) if m2 else ""
 
 
+def extract_owned_namespace(setup_yaml_path: str) -> str:
+    """Namespace the challenge creates itself, and may therefore delete on cleanup.
+
+    Unlike extract_namespace_from_setup, this never falls back to a bare `namespace:`
+    reference: challenges that place resources in a shared platform namespace (such as
+    `monitoring`) must not delete it, or cleanup takes the platform down with it.
+    """
+    if not os.path.exists(setup_yaml_path):
+        return ""
+    with open(setup_yaml_path, "r", encoding="utf-8") as f:
+        content = f.read()
+
+    for doc in re.split(r"(?m)^\s*---\s*$", content):
+        if not re.search(r"(?m)^\s*kind:\s*Namespace\s*$", doc):
+            continue
+        m = re.search(r"(?m)^\s*name:\s*([a-z0-9]([-a-z0-9]*[a-z0-9])?)\s*$", doc)
+        if m:
+            return m.group(1)
+    return ""
+
+
 def kubectl_apply(file_path: str) -> None:
     validate_disabled = False
     res = _run(["kubectl", "apply", "-f", file_path])
@@ -652,6 +673,7 @@ def solve_challenge(exercise_path: str, *, validate: bool, cleanup: bool, exec_t
         raise SystemExit(f"ERROR: missing setup file: {setup_yaml}")
 
     ns = extract_namespace_from_setup(setup_yaml)
+    owned_ns = extract_owned_namespace(setup_yaml)
 
     print(f"==> {exercise_path}")
     kubectl_apply(setup_yaml)
@@ -698,7 +720,7 @@ def solve_challenge(exercise_path: str, *, validate: bool, cleanup: bool, exec_t
     finally:
         if cleanup:
             kubectl_delete(setup_yaml)
-            kubectl_delete_namespace(ns)
+            kubectl_delete_namespace(owned_ns)
 
 
 def main() -> None:
