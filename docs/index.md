@@ -4,7 +4,9 @@ Hands-on challenges for cloud-native platform engineering. Each challenge puts a
 or incomplete platform component on a real Kubernetes cluster and validates your fix with
 [KUTTL](https://kuttl.dev/) assertions on a timer.
 
-32 challenges across 7 domains, weighted to the CNPE curriculum.
+32 challenges across 7 practical domains. This is a hands-on lab rather than an exam
+simulator — see the README for how it maps to the [CNPA certification](https://www.cncf.io/training/certification/cnpa/)
+and which of its domains are not covered here.
 
 ## Quick Start
 

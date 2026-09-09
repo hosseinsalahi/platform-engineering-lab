@@ -724,7 +724,7 @@ def solve_challenge(exercise_path: str, *, validate: bool, cleanup: bool, exec_t
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Auto-solve CNPE challenges by replaying answer.md and running KUTTL.")
+    parser = argparse.ArgumentParser(description="Auto-solve challenges by replaying answer.md and running KUTTL.")
     parser.add_argument("target", nargs="?", help="Challenge (domain/name) or Exam (exam-1) to solve.")
     group = parser.add_mutually_exclusive_group(required=False)
     group.add_argument("--challenge", help="Solve a single challenge: <domain>/<challenge>")

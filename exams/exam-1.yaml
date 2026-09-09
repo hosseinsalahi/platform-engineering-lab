@@ -1,4 +1,4 @@
-name: "CNPE Exam 1"
+name: "Practice Set 1"
 totalMinutes: 120
 instructions:
   - "Ensure required platform components are installed (Argo CD + Argo Rollouts + Prometheus stack)."

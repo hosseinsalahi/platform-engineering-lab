@@ -1,6 +1,9 @@
 # Cloud Native Platform Engineering Guide
 
-A knowledge reference for platform engineers, organized by the CNPE exam curriculum. Each chapter explains the **why** behind platform patterns, with exercises to reinforce understanding.
+A knowledge reference for platform engineers, organized by the practical domains used in
+this repo. Each chapter explains the **why** behind platform patterns, with exercises to
+reinforce understanding. It is not structured to the CNPA exam's own domain weighting —
+see the README for that mapping.
 
 ### Core Principles (CNCF Platforms Whitepaper)
 

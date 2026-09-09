@@ -1,0 +1,50 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    ":dependencyDashboard"
+  ],
+  "timezone": "Europe/Berlin",
+  "schedule": [
+    "before 6am on monday"
+  ],
+  "labels": [
+    "dependencies"
+  ],
+  "prConcurrentLimit": 5,
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "Helm chart versions pinned in scripts/chart-versions.env",
+      "managerFilePatterns": [
+        "/^scripts/chart-versions\\.env$/"
+      ],
+      "matchStrings": [
+        "#\\s*renovate:\\s*datasource=(?<datasource>[a-z-]+?)\\s+registryUrl=(?<registryUrl>\\S+)\\s+depName=(?<depName>\\S+)\\s+[A-Z0-9_]+=\"(?<currentValue>[^\"]+)\""
+      ]
+    },
+    {
+      "customType": "regex",
+      "description": "kindest/node image used by the kind cluster config",
+      "managerFilePatterns": [
+        "/^scripts/kind-config\\.yaml$/"
+      ],
+      "matchStrings": [
+        "image:\\s+(?<depName>kindest/node):(?<currentValue>v[0-9.]+)"
+      ],
+      "datasourceTemplate": "docker"
+    }
+  ],
+  "packageRules": [
+    {
+      "description": "Chart bumps change what the challenges run against - never merge without re-running them",
+      "matchManagers": [
+        "custom.regex"
+      ],
+      "automerge": false,
+      "addLabels": [
+        "needs-challenge-run"
+      ]
+    }
+  ]
+}

@@ -1,13 +1,13 @@
 {
   "$schema": "https://raw.githubusercontent.com/jetify-com/devbox/0.13.7/.schema/devbox.schema.json",
   "packages": [
-    "argocd@3.1.8",
-    "istioctl@1.28.0",
-    "kind@0.20.0",
-    "kubectl@1.31.0",
-    "kubernetes-helm@3.13.0",
-    "kuttl@0.15.0",
-    "kyverno@1.15.2",
+    "argocd@3.4.6",
+    "istioctl@1.30.3",
+    "kind@0.32.0",
+    "kubectl@1.36.3",
+    "kubernetes-helm@4.2.4",
+    "kuttl@0.26.0",
+    "kyverno@1.19.0",
     "shellcheck@0.10.0",
     "tektoncd-cli@0.43.0",
     "yq-go@4.44.3"
