@@ -1,8 +1,8 @@
 apiVersion: backstage.io/v1alpha1
 kind: Component
 metadata:
-  name: platform-engineer-battleground
-  description: Platform engineering practice scenarios
+  name: platform-engineering-lab
+  description: Hands-on platform engineering scenarios, verified with KUTTL
   annotations:
     backstage.io/techdocs-ref: dir:.
 spec:

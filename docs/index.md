@@ -1,4 +1,4 @@
-# Platform Engineer Battleground
+# Platform Engineering Lab
 
 Hands-on challenges for cloud-native platform engineering. Each challenge puts a broken
 or incomplete platform component on a real Kubernetes cluster and validates your fix with
@@ -24,7 +24,7 @@ just provision-exam exam-1                  # only the tools that exam needs
 just provision-minimal                      # cluster only
 ```
 
-See the [README](https://github.com/Liquid-Reply/platform-engineer-battleground#readme)
+See the [README](https://github.com/hosseinsalahi/platform-engineering-lab#readme)
 for prerequisites, CLI installation, and Podman setup on macOS.
 
 ## How a Challenge Works

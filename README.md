@@ -1,8 +1,10 @@
-# Platform Engineer Battleground
+# Platform Engineering Lab
 
-[![Preflight](https://github.com/Liquid-Reply/platform-engineer-battleground/actions/workflows/preflight.yml/badge.svg)](https://github.com/Liquid-Reply/platform-engineer-battleground/actions/workflows/preflight.yml)
+[![Preflight](https://github.com/hosseinsalahi/platform-engineering-lab/actions/workflows/preflight.yml/badge.svg)](https://github.com/hosseinsalahi/platform-engineering-lab/actions/workflows/preflight.yml)
 
-Hands-on challenges for mastering cloud-native platform engineering. Battle-tested scenarios using progressive testing with [KUTTL](https://kuttl.dev/).
+A hands-on lab for cloud-native platform engineering: 35 scenarios that put a broken or
+incomplete platform component on a real Kubernetes cluster and check your fix with
+[KUTTL](https://kuttl.dev/) assertions.
 
 ## What is This?
 

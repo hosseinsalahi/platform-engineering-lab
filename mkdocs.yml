@@ -1,4 +1,4 @@
-site_name: platform-engineer-battleground
+site_name: Platform Engineering Lab
 nav:
   - Home: index.md
   - Exams: EXAMS.md
