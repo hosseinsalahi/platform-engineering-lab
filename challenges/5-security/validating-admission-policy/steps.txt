@@ -1,0 +1,3 @@
+0:Set failurePolicy to Fail so evaluation errors are not silently ignored
+1:Rewrite the CEL expression to test for the key instead of indexing it
+2:Create a compliant Deployment named checkout-api with team: payments

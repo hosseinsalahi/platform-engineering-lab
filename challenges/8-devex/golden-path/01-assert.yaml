@@ -1,0 +1,10 @@
+# Phase 2: the namespace is closed by default
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-ingress
+  namespace: cnpe-devex-team
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress

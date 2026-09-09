@@ -1,0 +1,8 @@
+# Phase 1: the rule carries the release label the Prometheus instance selects on
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: platform-dora-metrics
+  namespace: monitoring
+  labels:
+    release: prometheus-stack

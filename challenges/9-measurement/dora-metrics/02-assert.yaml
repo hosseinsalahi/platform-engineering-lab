@@ -1,0 +1,11 @@
+# Phase 3: Prometheus has actually loaded the group - the only proof that matters.
+# Queried through the API server's service proxy, so this needs no port-forward and
+# no shell inside the Prometheus image (which ships without wget or curl).
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+timeout: 300
+commands:
+  - script: |
+      kubectl get --raw \
+        "/api/v1/namespaces/monitoring/services/prometheus-stack-kube-prom-prometheus:9090/proxy/api/v1/rules" \
+        | grep -q 'platform.dora'

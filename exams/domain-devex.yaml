@@ -1,0 +1,11 @@
+name: "Developer Experience Domain Drill"
+totalMinutes: 15
+instructions:
+  - "Provision the lab first (recommended): `just provision-exam domain-devex`."
+  - "Use `just domain-devex` to run."
+sections:
+  - id: "devex-golden-path"
+    domain: "Developer Experience"
+    minutes: 15
+    challenge: "8-devex/golden-path"
+    objective: "Repair the golden path so labelling a namespace generates its guardrails."

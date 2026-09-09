@@ -1,0 +1,7 @@
+# Phase 1: evaluation errors must not be ignored
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: require-team-label
+spec:
+  failurePolicy: Fail

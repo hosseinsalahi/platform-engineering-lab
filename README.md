@@ -149,7 +149,7 @@ The provisioning script installs these platform engineering tools:
 
 ## Challenges
 
-32 challenges across 7 domains. See [docs/SOLUTIONS.md](docs/SOLUTIONS.md) for concepts and answers.
+35 challenges across 9 domains. See [docs/SOLUTIONS.md](docs/SOLUTIONS.md) for concepts and answers.
 
 ### 1: GitOps and Continuous Delivery (25%)
 - **broken-sync**: Diagnose and fix an Argo CD application that is out of sync.
@@ -189,6 +189,7 @@ The provisioning script installs these platform engineering tools:
 - **istio-mtls**: Configure strict mTLS with Istio.
 - **gatekeeper-constraint**: Create a Gatekeeper Constraint to enforce a policy.
 - **external-secrets**: Fix a broken ExternalSecret so the Secret syncs from the store.
+- **validating-admission-policy**: Fix a native ValidatingAdmissionPolicy that fails open.
 
 ### 6: Scalability (Bonus)
 - **hpa-cpu**: Configure Horizontal Pod Autoscaling based on CPU.
@@ -196,6 +197,12 @@ The provisioning script installs these platform engineering tools:
 ### 7: Packaging (Bonus)
 - **helm-templating**: Fix a broken Helm chart.
 - **kustomize-overlays**: Create a production Kustomize overlay.
+
+### 8: Developer Experience (Bonus)
+- **golden-path**: Repair a self-service golden path so labelling a namespace generates its guardrails.
+
+### 9: Measuring your Platform (Bonus)
+- **dora-metrics**: Get DORA recording rules actually loaded and evaluated by Prometheus.
 
 ```bash
 just domain-gitops        # or: just gitops-fix, just gitops-canary, ...
@@ -205,6 +212,8 @@ just domain-architecture
 just domain-security
 just domain-scalability
 just domain-packaging
+just domain-devex
+just domain-measurement
 ```
 
 ## How KUTTL Progressive Testing Works
@@ -256,14 +265,15 @@ CNPA's published domains, and where this repo lands against them:
 | Platform Observability, Security and Conformance | 20% | Yes — `3-observability` and `5-security` |
 | Continuous Delivery & Platform Engineering | 16% | Yes — `1-gitops` |
 | Platform APIs and Provisioning Infrastructure | 12% | Yes — `2-apis` |
-| IDPs and Developer Experience | 8% | **No challenges** |
-| Measuring your Platform | 8% | **No challenges** |
+| IDPs and Developer Experience | 8% | Partly — `8-devex` covers self-service golden paths; portal/catalog tooling is not exercised |
+| Measuring your Platform | 8% | Partly — `9-measurement` covers platform-side DORA signals; delivery-pipeline and incident data are not |
 
-So roughly 16% of the exam has no challenge here at all, and the largest domain is only
-partly exercised. If you are preparing for CNPA, use this alongside the official
-curriculum rather than instead of it.
+Every CNPA domain now has at least one challenge, but the coverage is uneven: the
+largest domain is mostly conceptual and only partly exercised here, and the two 8%
+domains are touched rather than covered. If you are preparing for CNPA, use this
+alongside the official curriculum rather than instead of it.
 
-The seven directories under `challenges/` are organised by practical subject, not by CNPA
+The directories under `challenges/` are organised by practical subject, not by CNPA
 weighting — they are sized by what makes a good hands-on scenario.
 
 ## License

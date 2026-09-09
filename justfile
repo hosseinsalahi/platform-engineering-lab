@@ -281,6 +281,9 @@ security-gatekeeper: (_run "5-security" "gatekeeper-constraint")
 # Fix broken ExternalSecret sync
 security-eso: (_run "5-security" "external-secrets")
 
+# Fix a ValidatingAdmissionPolicy (native CEL admission)
+security-vap: (_run "5-security" "validating-admission-policy")
+
 # ==================== Scalability Domain ====================
 
 # Run all Scalability challenges
@@ -301,3 +304,21 @@ pkg-helm: (_run "7-packaging" "helm-templating")
 
 # Create Production Kustomize Overlay
 pkg-kustomize: (_run "7-packaging" "kustomize-overlays")
+
+# ==================== Developer Experience Domain ====================
+
+# Run all Developer Experience challenges
+domain-devex *ARGS:
+  @just exam domain-devex {{ARGS}}
+
+# Repair a self-service golden path
+devex-golden-path: (_run "8-devex" "golden-path")
+
+# ==================== Measurement Domain ====================
+
+# Run all Measurement challenges
+domain-measurement *ARGS:
+  @just exam domain-measurement {{ARGS}}
+
+# Make the platform's DORA signals load in Prometheus
+measure-dora: (_run "9-measurement" "dora-metrics")

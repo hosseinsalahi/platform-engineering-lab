@@ -1,0 +1,3 @@
+0:The Prometheus instance selects PrometheusRule objects by label - check what kube-prometheus-stack expects
+1:Recording rule names must be valid metric names
+2:Confirm the group appears in Prometheus's /api/v1/rules (via kubectl get --raw and the service proxy)
