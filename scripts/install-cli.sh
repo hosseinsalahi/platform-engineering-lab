@@ -110,48 +110,47 @@ sudo dnf install -y curl git python3 python3-pip podman
 # Configure kind to use podman
 export KIND_EXPERIMENTAL_PROVIDER=podman
 
-# kubectl (v1.28.2)
-curl -LO "https://dl.k8s.io/v1.28.2/bin/linux/amd64/kubectl"
-echo "c922440b043e5de1afa3c1382f8c663a25f055978cbc6e8423493ec157579ec5  kubectl" | sha256sum --check
+# kubectl (v1.36.3) - within the supported +/-1 minor skew of the v1.35 cluster
+curl -LO "https://dl.k8s.io/v1.36.3/bin/linux/amd64/kubectl"
+echo "ebbd080e7c2e275093b55915722043257eb24004363e20acb3c4d71919f88336  kubectl" | sha256sum --check
 chmod +x kubectl && sudo mv kubectl /usr/local/bin/
 
-# kind (v0.20.0)
-curl -Lo kind https://kind.sigs.k8s.io/dl/v0.20.0/kind-linux-amd64
-echo "513a7213d6d3332dd9ef27c24dab35e5ef10a04fa27274fe1c14d8a246493ded  kind" | sha256sum --check
+# kind (v0.33.0) - must be new enough for the kindest/node image in kind-config.yaml
+curl -Lo kind https://kind.sigs.k8s.io/dl/v0.33.0/kind-linux-amd64
+echo "aee6151561422756b764a4ae28e7f44cda5af5a9eead3cc9985112b1de8d8e0d  kind" | sha256sum --check
 chmod +x kind && sudo mv kind /usr/local/bin/
 
-# helm (v3.13.3)
-curl -LO https://get.helm.sh/helm-v3.13.3-linux-amd64.tar.gz
-echo "bbb6e7c6201458b235f335280f35493950dcd856825ddcfd1d3b40ae757d5c7d  helm-v3.13.3-linux-amd64.tar.gz" | sha256sum --check
-tar -zxvf helm-v3.13.3-linux-amd64.tar.gz
+# helm (v4.2.4) - Helm 3 bug fixes ended July 2026; v2-format charts still work unchanged
+curl -LO https://get.helm.sh/helm-v4.2.4-linux-amd64.tar.gz
+echo "c306b46f719b0a4da32d0f78ee21bf90ce8d602f15b22ab753f0674d1670a7f3  helm-v4.2.4-linux-amd64.tar.gz" | sha256sum --check
+tar -zxvf helm-v4.2.4-linux-amd64.tar.gz
 sudo mv linux-amd64/helm /usr/local/bin/helm
-rm -rf linux-amd64 helm-v3.13.3-linux-amd64.tar.gz
+rm -rf linux-amd64 helm-v4.2.4-linux-amd64.tar.gz
 
-# kuttl (v0.24.0)
-curl -L https://github.com/kudobuilder/kuttl/releases/download/v0.24.0/kuttl_0.24.0_linux_x86_64.tar.gz -o kuttl.tar.gz
-echo "9451186fd17517a58ac5c498c1b7761fd117e91db3c7543d437554fab7452294  kuttl.tar.gz" | sha256sum --check
+# kuttl (v0.26.0)
+curl -L https://github.com/kudobuilder/kuttl/releases/download/v0.26.0/kuttl_0.26.0_linux_x86_64.tar.gz -o kuttl.tar.gz
+echo "a1e85cf519f19260b16f8c2c77b475c6b43c10313aee1ad02469f37da08dbe86  kuttl.tar.gz" | sha256sum --check
 tar -xzf kuttl.tar.gz kubectl-kuttl && sudo mv kubectl-kuttl /usr/local/bin/ && rm kuttl.tar.gz
 
-# istioctl (1.28.0) - Note: Using 1.28.0 as requested, though usually older. 
-# WARNING: Checksum verification skipped for istioctl installer script pattern.
-# Recommended: Download binary directly if available.
-curl -L https://istio.io/downloadIstio | ISTIO_VERSION=1.28.0 sh -
-sudo mv istio-1.28.0/bin/istioctl /usr/local/bin/
+# istioctl (1.30.3) - keep the minor in step with ISTIO_CHART_VERSION in chart-versions.env
+# WARNING: the upstream installer script is not checksum-verified.
+curl -L https://istio.io/downloadIstio | ISTIO_VERSION=1.30.3 sh -
+sudo mv istio-1.30.3/bin/istioctl /usr/local/bin/
 
 # tekton CLI (v0.43.0)
 curl -LO https://github.com/tektoncd/cli/releases/download/v0.43.0/tkn_0.43.0_Linux_x86_64.tar.gz
 echo "8a5cbeed07fcfd519199c84f93d08ec2c5d3ccea987b4573b1cd3b8def19ceb5  tkn_0.43.0_Linux_x86_64.tar.gz" | sha256sum --check
 tar -xzf tkn_0.43.0_Linux_x86_64.tar.gz tkn && sudo mv tkn /usr/local/bin/ && rm tkn_0.43.0_Linux_x86_64.tar.gz
 
-# argocd (v2.12.3)
-curl -sLO https://github.com/argoproj/argo-cd/releases/download/v2.12.3/argocd-linux-amd64
-echo "28350b3d67b441a1871ea1ef957ffd0a62d4c1827c0ce261aba63809113ab783  argocd-linux-amd64" | sha256sum --check
+# argocd (v3.4.6) - the CLI major must match the Argo CD server installed by the chart
+curl -sLO https://github.com/argoproj/argo-cd/releases/download/v3.4.6/argocd-linux-amd64
+echo "af05f97444a140591a12c136f2be6ffafd95aed03b34a500957ff8aedb998181  argocd-linux-amd64" | sha256sum --check
 chmod +x argocd-linux-amd64 && sudo mv argocd-linux-amd64 /usr/local/bin/argocd
 
-# kyverno CLI (v1.16.1)
-curl -LO https://github.com/kyverno/kyverno/releases/download/v1.16.1/kyverno-cli_v1.16.1_linux_x86_64.tar.gz
-echo "0c0216e4c3bb535eaf94ea1c2e13e4d66f7be2ec6446c37aee6c3133650167e7  kyverno-cli_v1.16.1_linux_x86_64.tar.gz" | sha256sum --check
-tar -xzf kyverno-cli_v1.16.1_linux_x86_64.tar.gz kyverno && sudo mv kyverno /usr/local/bin/ && rm kyverno-cli_v1.16.1_linux_x86_64.tar.gz
+# kyverno CLI (v1.19.0)
+curl -LO https://github.com/kyverno/kyverno/releases/download/v1.19.0/kyverno-cli_v1.19.0_linux_x86_64.tar.gz
+echo "f5b4dc73c8e2f3f66e8e0034dc370e6eb6c4617eff7d5ae3838d2200034eb421  kyverno-cli_v1.19.0_linux_x86_64.tar.gz" | sha256sum --check
+tar -xzf kyverno-cli_v1.19.0_linux_x86_64.tar.gz kyverno && sudo mv kyverno /usr/local/bin/ && rm kyverno-cli_v1.19.0_linux_x86_64.tar.gz
 
 # yq (v4.50.1)
 curl -Lo yq https://github.com/mikefarah/yq/releases/download/v4.50.1/yq_linux_amd64
@@ -188,33 +187,33 @@ EOF
         }
 
         # Kubectl
-        install_bin "https://dl.k8s.io/v1.28.2/bin/linux/amd64/kubectl" \
-                    "c922440b043e5de1afa3c1382f8c663a25f055978cbc6e8423493ec157579ec5" "kubectl"
+        install_bin "https://dl.k8s.io/v1.36.3/bin/linux/amd64/kubectl" \
+                    "ebbd080e7c2e275093b55915722043257eb24004363e20acb3c4d71919f88336" "kubectl"
         
         # Kind
-        install_bin "https://kind.sigs.k8s.io/dl/v0.20.0/kind-linux-amd64" \
-                    "513a7213d6d3332dd9ef27c24dab35e5ef10a04fa27274fe1c14d8a246493ded" "kind"
+        install_bin "https://kind.sigs.k8s.io/dl/v0.33.0/kind-linux-amd64" \
+                    "aee6151561422756b764a4ae28e7f44cda5af5a9eead3cc9985112b1de8d8e0d" "kind"
 
         # Helm
         echo "  Downloading Helm..."
-        curl -fsSL https://get.helm.sh/helm-v3.13.3-linux-amd64.tar.gz -o helm.tar.gz
-        echo "bbb6e7c6201458b235f335280f35493950dcd856825ddcfd1d3b40ae757d5c7d  helm.tar.gz" | sha256sum --check
+        curl -fsSL https://get.helm.sh/helm-v4.2.4-linux-amd64.tar.gz -o helm.tar.gz
+        echo "c306b46f719b0a4da32d0f78ee21bf90ce8d602f15b22ab753f0674d1670a7f3  helm.tar.gz" | sha256sum --check
         tar -zxf helm.tar.gz
         sudo mv linux-amd64/helm /usr/local/bin/helm
         rm -rf linux-amd64 helm.tar.gz
 
         # Kuttl
         echo "  Downloading Kuttl..."
-        curl -fsSL https://github.com/kudobuilder/kuttl/releases/download/v0.24.0/kuttl_0.24.0_linux_x86_64.tar.gz -o kuttl.tar.gz
-        echo "9451186fd17517a58ac5c498c1b7761fd117e91db3c7543d437554fab7452294  kuttl.tar.gz" | sha256sum --check
+        curl -fsSL https://github.com/kudobuilder/kuttl/releases/download/v0.26.0/kuttl_0.26.0_linux_x86_64.tar.gz -o kuttl.tar.gz
+        echo "a1e85cf519f19260b16f8c2c77b475c6b43c10313aee1ad02469f37da08dbe86  kuttl.tar.gz" | sha256sum --check
         tar -xzf kuttl.tar.gz kubectl-kuttl
         sudo mv kubectl-kuttl /usr/local/bin/
         rm kuttl.tar.gz
 
         # Istio (Keep shell pipe for now, but note risk. Pinning version is safer than latest.)
-        curl -L https://istio.io/downloadIstio | ISTIO_VERSION=1.28.0 sh -
-        sudo mv istio-1.28.0/bin/istioctl /usr/local/bin/
-        rm -rf istio-1.28.0
+        curl -L https://istio.io/downloadIstio | ISTIO_VERSION=1.30.3 sh -
+        sudo mv istio-1.30.3/bin/istioctl /usr/local/bin/
+        rm -rf istio-1.30.3
 
         # Tekton
         echo "  Downloading Tekton..."
@@ -225,13 +224,13 @@ EOF
         rm tkn.tar.gz
 
         # ArgoCD
-        install_bin "https://github.com/argoproj/argo-cd/releases/download/v2.12.3/argocd-linux-amd64" \
-                    "28350b3d67b441a1871ea1ef957ffd0a62d4c1827c0ce261aba63809113ab783" "argocd"
+        install_bin "https://github.com/argoproj/argo-cd/releases/download/v3.4.6/argocd-linux-amd64" \
+                    "af05f97444a140591a12c136f2be6ffafd95aed03b34a500957ff8aedb998181" "argocd"
 
         # Kyverno
         echo "  Downloading Kyverno..."
-        curl -fsSL https://github.com/kyverno/kyverno/releases/download/v1.16.1/kyverno-cli_v1.16.1_linux_x86_64.tar.gz -o kyverno.tar.gz
-        echo "0c0216e4c3bb535eaf94ea1c2e13e4d66f7be2ec6446c37aee6c3133650167e7  kyverno.tar.gz" | sha256sum --check
+        curl -fsSL https://github.com/kyverno/kyverno/releases/download/v1.19.0/kyverno-cli_v1.19.0_linux_x86_64.tar.gz -o kyverno.tar.gz
+        echo "f5b4dc73c8e2f3f66e8e0034dc370e6eb6c4617eff7d5ae3838d2200034eb421  kyverno.tar.gz" | sha256sum --check
         tar -xzf kyverno.tar.gz kyverno
         sudo mv kyverno /usr/local/bin/
         rm kyverno.tar.gz

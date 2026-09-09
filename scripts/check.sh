@@ -16,6 +16,18 @@ ok(){ printf "  \033[0;32m✓\033[0m %s\n" "$1"; }
 warn(){ printf "  \033[1;33m-\033[0m %s\n" "$1"; }
 die(){ printf "  \033[0;31m✗\033[0m %s\n" "$1"; exit 1; }
 
+# Minimum versions. These are floors, not pins: anything at or above them is fine.
+# The floors exist because an old toolchain fails in confusing ways much later -
+# a stale kubectl drifts outside the supported +/-1 skew against the cluster's
+# API server, and an old kind may not understand the kindest/node image in
+# scripts/kind-config.yaml.
+MIN_KIND_VERSION="0.30.0"
+MIN_KUBECTL_MINOR="34"
+MIN_HELM_MAJOR="3"
+
+# version_ge <have> <want> - true when have >= want, compared as dotted versions
+version_ge(){ [[ "$(printf '%s\n%s\n' "$2" "$1" | sort -V | head -n1)" == "$2" ]]; }
+
 usage() {
   cat <<'USAGE_EOF'
 Usage: check.sh
@@ -49,13 +61,38 @@ else
 fi
 
 command -v kubectl >/dev/null 2>&1 || die "kubectl missing"
-ok "kubectl $(kubectl version --client --short 2>/dev/null || echo present)"
+kubectl_ver="$(kubectl version --client -o json 2>/dev/null | sed -n 's/.*"gitVersion": *"v\([0-9.]*\)".*/\1/p' | head -n1)"
+if [[ -n "$kubectl_ver" ]]; then
+  kubectl_minor="$(printf '%s' "$kubectl_ver" | cut -d. -f2)"
+  if [[ "$kubectl_minor" -lt "$MIN_KUBECTL_MINOR" ]]; then
+    die "kubectl v${kubectl_ver} is too old (need 1.${MIN_KUBECTL_MINOR}+ for the v1.35 cluster; kubectl supports +/-1 minor)"
+  fi
+  ok "kubectl v${kubectl_ver}"
+else
+  warn "kubectl present (version not parsed)"
+fi
 
 command -v kind >/dev/null 2>&1 || die "kind missing"
-ok "kind $(kind version 2>/dev/null || echo present)"
+kind_ver="$(kind version 2>/dev/null | sed -n 's/^kind v\([0-9.]*\).*/\1/p' | head -n1)"
+if [[ -n "$kind_ver" ]]; then
+  version_ge "$kind_ver" "$MIN_KIND_VERSION" \
+    || die "kind v${kind_ver} is too old (need v${MIN_KIND_VERSION}+ for the node image in scripts/kind-config.yaml)"
+  ok "kind v${kind_ver}"
+else
+  warn "kind present (version not parsed)"
+fi
 
 command -v helm >/dev/null 2>&1 || die "helm missing"
-ok "helm $(helm version --short --client 2>/dev/null || helm version --short 2>/dev/null || echo present)"
+helm_ver="$(helm version --short 2>/dev/null | sed -n 's/^v\([0-9.]*\).*/\1/p' | head -n1)"
+if [[ -n "$helm_ver" ]]; then
+  helm_major="$(printf '%s' "$helm_ver" | cut -d. -f1)"
+  if [[ "$helm_major" -lt "$MIN_HELM_MAJOR" ]]; then
+    die "helm v${helm_ver} is too old (need v${MIN_HELM_MAJOR}+)"
+  fi
+  ok "helm v${helm_ver}"
+else
+  warn "helm present (version not parsed)"
+fi
 
 # KUTTL kubectl plugin
 kubectl kuttl version >/dev/null 2>&1 || die "KUTTL plugin missing (install from https://kuttl.dev/docs/cli.html)"
