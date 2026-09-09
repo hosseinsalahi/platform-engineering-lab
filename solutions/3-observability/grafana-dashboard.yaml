@@ -48,7 +48,7 @@ data:
       "time": {"from": "now-1h", "to": "now"},
       "timepicker": {},
       "timezone": "",
-      "title": "CNPE Dashboard",
+      "title": "Platform Dashboard",
       "uid": "cnpe-dashboard",
       "version": 0
     }

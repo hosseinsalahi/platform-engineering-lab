@@ -2,4 +2,4 @@ apiVersion: v1
 kind: Namespace
 metadata:
   name: cnpe-selfservice-test
-# Task: Create XRD, Composition, and DatabaseRequest for self-service provisioning
+# Task: Create the XRD, the Composition, and a namespaced composite resource

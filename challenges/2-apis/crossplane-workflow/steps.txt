@@ -1,3 +1,3 @@
-0:Create XRD for DatabaseRequest API
-1:Create Composition for provisioning logic
-2:Create DatabaseRequest claim to test workflow
+0:Create an XRD (apiextensions.crossplane.io/v2, scope: Namespaced) for the XDatabaseRequest API
+1:Create a Composition in Pipeline mode bound to that composite type
+2:Create an XDatabaseRequest in cnpe-selfservice-test to exercise the API

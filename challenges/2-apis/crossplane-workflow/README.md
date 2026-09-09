@@ -5,15 +5,22 @@
 
 ## Context
 
-The platform team wants to enable self-service database provisioning. Developers should be able to request a database by creating a simple DatabaseRequest CR, and the platform should automatically provision it.
+The platform team wants to enable self-service database provisioning. A developer should
+be able to ask for a database by creating one small resource in their own namespace, and
+the platform decides what actually gets built.
 
 ## Task
 
 Create a self-service workflow in `cnpe-selfservice-test` namespace:
 
 1. Create a **Crossplane Composition** that defines how to provision resources
-2. Create a **CompositeResourceDefinition (XRD)** for the DatabaseRequest API
-3. Create a test **DatabaseRequest** to verify the workflow
+2. Create a **CompositeResourceDefinition (XRD)** on `apiextensions.crossplane.io/v2`
+   with `scope: Namespaced`, defining the `XDatabaseRequest` API
+3. Create an **XDatabaseRequest** in `cnpe-selfservice-test` to exercise the API
+
+Note: Crossplane v2 removed claims. Under v1 a developer used a namespaced *claim* that
+pointed at a cluster-scoped composite; in v2 the composite itself is namespaced and is
+created directly.
 
 ## Requirements
 

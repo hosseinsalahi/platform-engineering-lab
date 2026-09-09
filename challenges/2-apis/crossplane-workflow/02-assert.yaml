@@ -1,5 +1,6 @@
-# DatabaseRequest claim exists
+# The developer's namespaced composite resource exists.
+# Crossplane v2 has no claims - the XR is created directly in the namespace.
 apiVersion: kuttl.dev/v1beta1
 kind: TestAssert
 commands:
-  - script: kubectl get databaserequest test-db -n cnpe-selfservice-test
+  - script: kubectl get xdatabaserequest test-db -n cnpe-selfservice-test
