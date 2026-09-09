@@ -48,6 +48,28 @@ def load_docs(p: Path):
         return None
 
 
+# Namespaces owned by the platform install (or by Kubernetes itself). A challenge
+# that declares one of these in setup.yaml also deletes it on cleanup, because
+# cleanup runs `kubectl delete -f setup.yaml` - which uninstalls whatever lives
+# there. 4-architecture/network-policy did exactly this to `monitoring`, taking
+# kube-prometheus-stack with it and breaking three other challenges.
+RESERVED_NAMESPACES = {
+    'monitoring', 'istio-system', 'argocd', 'argo-rollouts', 'kyverno',
+    'gatekeeper-system', 'jaeger', 'opencost', 'crossplane-system',
+    'external-secrets', 'tekton-pipelines', 'tekton-pipelines-resolvers',
+    'kube-system', 'kube-public', 'kube-node-lease', 'default',
+    'local-path-storage',
+}
+
+
+def check_reserved_namespace(doc):
+    """Return the reserved namespace this doc declares, if any."""
+    if not isinstance(doc, dict) or doc.get('kind') != 'Namespace':
+        return None
+    name = (doc.get('metadata') or {}).get('name')
+    return name if name in RESERVED_NAMESPACES else None
+
+
 def check_status_block(doc):
     # Top-level status in applied manifests is almost always invalid
     return isinstance(doc, dict) and 'status' in doc
@@ -141,6 +163,16 @@ def main(argv=None) -> int:
         for i, d in enumerate(docs):
             if check_status_block(d):
                 file_errors.append(f"doc {i+1}: top-level 'status' not allowed in setup manifests")
+
+        # shared namespaces the challenge would delete on cleanup
+        for i, d in enumerate(docs):
+            reserved = check_reserved_namespace(d)
+            if reserved:
+                file_errors.append(
+                    f"doc {i+1}: declares the shared namespace '{reserved}'. Cleanup deletes "
+                    f"everything in setup.yaml, so this would uninstall whatever the platform "
+                    f"runs there. Use a challenge-scoped name (cnpe-*) instead."
+                )
 
         # invalidField heuristic
         for i, d in enumerate(docs):

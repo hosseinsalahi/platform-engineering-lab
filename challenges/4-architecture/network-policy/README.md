@@ -22,13 +22,15 @@ Create a NetworkPolicy that allows the frontend pods (label: `app=frontend`) to 
 
 ### Phase 3: Allow Monitoring Access
 
-Create a NetworkPolicy that allows pods from the `monitoring` namespace to scrape metrics from all pods in `tenant-alpha` on port 9090.
+Create a NetworkPolicy that allows pods from the monitoring tenant namespace
+(`cnpe-monitoring`, labelled `purpose: monitoring`) to scrape metrics from all pods in
+`tenant-alpha` on port 9090. Select it by label, not by name.
 
 ## Verification
 
 Traffic should work:
 - `frontend` → `backend:8080` (same namespace)
-- `monitoring` → `any-pod:9090` (cross-namespace)
+- `cnpe-monitoring` → `any-pod:9090` (cross-namespace)
 
 Traffic should be blocked:
 - `tenant-beta` → `tenant-alpha` (cross-tenant)
