@@ -3,7 +3,8 @@ kind: Namespace
 metadata:
   name: cnpe-tracing-test
 ---
-# Jaeger all-in-one collector is pre-deployed
+# Jaeger v2 all-in-one is pre-deployed. v2 is a single binary built on the
+# OpenTelemetry Collector; Jaeger v1 reached end-of-life on 2025-12-31.
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -21,7 +22,7 @@ spec:
     spec:
       containers:
         - name: jaeger
-          image: jaegertracing/all-in-one:1.53
+          image: jaegertracing/jaeger:2.20.0
           ports:
             - containerPort: 16686
             - containerPort: 4317

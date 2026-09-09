@@ -8,10 +8,7 @@ apiVersion: kyverno.io/v1
 kind: ClusterPolicy
 metadata:
   name: require-memory-limits
-  namespace: cnpe-security-test
 spec:
-  # BUG 1: Should be "Enforce" to block violations
-  validationFailureAction: Audit
   background: true
   rules:
   - name: require-memory-limits
@@ -24,6 +21,8 @@ spec:
           # BUG 2: Wrong namespace - should be "cnpe-security-test"
           - cnpe-other-namespace
     validate:
+      # BUG 1: Should be "Enforce" to block violations
+      failureAction: Audit
       message: "Memory limits are required for all containers."
       pattern:
         spec:

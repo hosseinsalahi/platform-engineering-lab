@@ -1,5 +1,5 @@
 # The DestinationRule resolves to the stable Service and defines both subsets
-apiVersion: networking.istio.io/v1beta1
+apiVersion: networking.istio.io/v1
 kind: DestinationRule
 metadata:
   name: echo

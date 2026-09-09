@@ -8,8 +8,8 @@ kubectl get clusterpolicy require-memory-limits -o yaml
 
 Two bugs are visible in the policy spec:
 
-1. `validationFailureAction: Audit` only records violations in a PolicyReport; it never
-   rejects a Pod. It must be `Enforce`.
+1. `rules[0].validate.failureAction: Audit` only records violations in a PolicyReport; it
+   never rejects a Pod. It must be `Enforce`.
 2. `match.any[0].resources.namespaces` lists `cnpe-other-namespace`, so the rule never
    selects Pods in `cnpe-security-test`.
 
@@ -23,7 +23,6 @@ kind: ClusterPolicy
 metadata:
   name: require-memory-limits
 spec:
-  validationFailureAction: Enforce
   background: true
   rules:
   - name: require-memory-limits
@@ -35,6 +34,7 @@ spec:
           namespaces:
           - cnpe-security-test
     validate:
+      failureAction: Enforce
       message: "Memory limits are required for all containers."
       pattern:
         spec:
@@ -76,7 +76,10 @@ kubectl run test-pod --image=nginx -n cnpe-security-test
 
 ## Key Concepts
 
-1. **validationFailureAction**: `Audit` only logs violations, `Enforce` blocks them
+1. **`validate.failureAction`**: `Audit` only logs violations, `Enforce` blocks them. It
+   is set per rule, so one policy can audit some rules while enforcing others. The older
+   top-level `spec.validationFailureAction` applied to every rule at once and is
+   deprecated since Kyverno 1.13 — expect it to be removed
 2. **match.resources.namespaces**: Limits policy to specific namespaces
 3. **validate.pattern**: Uses Kyverno's pattern matching to check resource fields
 4. `?*` means "any non-empty value must be present"

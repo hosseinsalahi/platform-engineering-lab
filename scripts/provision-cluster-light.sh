@@ -173,8 +173,8 @@ install_helm() {
 }
 
 install_tekton_triggers_crds_only() {
-  local version="v0.29.1"
-  local release_url="https://storage.googleapis.com/tekton-releases/triggers/previous/${version}/release.yaml"
+  local version="v0.37.0"
+  local release_url="https://infra.tekton.dev/tekton-releases/triggers/previous/${version}/release.yaml"
 
   echo "      Installing tekton triggers CRDs (controllers skipped)..."
   if kubectl get crd triggerbindings.triggers.tekton.dev >/dev/null 2>&1; then
@@ -226,7 +226,7 @@ want_tool metrics-server && install_helm metrics-server metrics-server/metrics-s
 if want_tool tekton; then
   echo "      Installing tekton (pipelines + triggers CRDs)..."
   # Pipelines
-  curl -fsSL https://storage.googleapis.com/tekton-releases/pipeline/previous/v0.65.2/release.yaml -o tekton-pipeline.yaml
+  curl -fsSL https://infra.tekton.dev/tekton-releases/pipeline/previous/v0.65.2/release.yaml -o tekton-pipeline.yaml
   kubectl apply -f tekton-pipeline.yaml >/dev/null 2>&1
   rm -f tekton-pipeline.yaml
 

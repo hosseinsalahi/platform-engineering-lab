@@ -6,7 +6,7 @@ it, scaling between 2 and 10 replicas at 50% average CPU.
 ## Create the HorizontalPodAutoscaler
 
 ```yaml
-apiVersion: autoscaling/v1
+apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
   name: php-apache-hpa
@@ -18,7 +18,13 @@ spec:
     name: php-apache
   minReplicas: 2
   maxReplicas: 10
-  targetCPUUtilizationPercentage: 50
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 50
 ```
 
 Save it as `hpa.yaml` and `kubectl apply -f hpa.yaml`, or pipe it straight to
@@ -27,8 +33,8 @@ Save it as `hpa.yaml` and `kubectl apply -f hpa.yaml`, or pipe it straight to
 ## Alternative: the imperative form
 
 `kubectl autoscale` produces an equivalent HPA, but names it after the Deployment
-(`php-apache`), not `php-apache-hpa`. The assert checks for `php-apache-hpa`, so rename
-it or use the manifest above.
+(`php-apache`), not `php-apache-hpa`, and emits the legacy `autoscaling/v1` shape. The
+assert checks for `php-apache-hpa` on `autoscaling/v2`, so use the manifest above.
 
 ```bash
 kubectl autoscale deployment php-apache --cpu-percent=50 --min=2 --max=10 -n cnpe-scaling
@@ -48,7 +54,9 @@ checks the HPA spec, not live metrics.
 1. **targetCPUUtilizationPercentage** is a percentage of the pod's CPU *request*, not of
    a core — so the Deployment must set `resources.requests.cpu` for the HPA to compute a
    ratio.
-2. **autoscaling/v1** carries only CPU targets; `autoscaling/v2` adds memory, custom, and
-   external metrics.
+2. **autoscaling/v2** is the current API. The older `autoscaling/v1` expressed the same
+   thing as a single `targetCPUUtilizationPercentage` field and could scale on nothing but
+   CPU; v2's `metrics` list also carries memory, custom, and external metrics, plus
+   scaling behaviour/stabilisation windows.
 3. `minReplicas` raises the floor: the Deployment's own `replicas: 1` is overridden once
    the HPA takes ownership of scaling.
