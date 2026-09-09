@@ -19,27 +19,55 @@ usage() {
 Usage: install-cli.sh [--apply|--print] [--force]
 
 Options:
-  --apply   On Linux, execute recommended install commands with sudo
-  --print   On Linux, print recommended install commands (default)
+  --apply   Execute the install steps (Linux: with sudo; macOS: via Homebrew)
+  --print   Print the install steps without running anything
   --force   Reinstall/overwrite even if tools already present (macOS brew; Linux apply mode downloads again)
 
 Notes:
-  - macOS always installs via Homebrew (requires brew)
+  - Default mode is --apply on macOS (Homebrew, requires brew) and --print on Linux
+  - --print never modifies the machine on either OS: no installs, no Podman machine
   - For Linux, architecture defaults to x86_64; adjust URLs for arm64
 EOF
 }
 
 MODE="print"
+MODE_EXPLICIT=0
 FORCE=0
 while [[ $# -gt 0 ]]; do
   case "$1" in
-    --apply) MODE="apply"; shift ;;
-    --print) MODE="print"; shift ;;
+    --apply) MODE="apply"; MODE_EXPLICIT=1; shift ;;
+    --print) MODE="print"; MODE_EXPLICIT=1; shift ;;
     --force) FORCE=1; shift ;;
     -h|--help) usage; exit 0 ;;
     *) echo "Unknown option: $1" >&2; usage; exit 1 ;;
   esac
 done
+
+# macOS has always installed on a bare invocation, and README/justfile document
+# `just install-cli` that way, so keep apply as the default there - but honour an
+# explicit --print, which previously installed anyway.
+if [[ "$OS" == "Darwin" && "$MODE_EXPLICIT" -eq 0 ]]; then
+  MODE="apply"
+fi
+
+if [[ "$OS" == "Darwin" && "$MODE" == "print" ]]; then
+  cat <<'PRINT_EOF'
+macOS detected. Printing recommended install commands (nothing has been run):
+
+brew install podman kuttl kind kubernetes-cli helm istioctl tektoncd-cli argocd kyverno yq
+
+# Podman machine (required, especially on Apple Silicon)
+podman machine init --cpus 4 --memory 8192 --disk-size 50
+podman machine start
+
+# Point kind at Podman
+export KIND_EXPERIMENTAL_PROVIDER=podman
+
+# Then verify
+just check
+PRINT_EOF
+  exit 0
+fi
 
 if [[ "$OS" == "Darwin" ]]; then
   if ! command -v brew >/dev/null 2>&1; then
