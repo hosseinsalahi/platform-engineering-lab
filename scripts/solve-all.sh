@@ -41,7 +41,11 @@ cd "$ROOT_DIR"
 if [[ ${#ONLY[@]} -gt 0 ]]; then
   CHALLENGES=("${ONLY[@]}")
 else
-  mapfile -t CHALLENGES < <(
+  # read into an array without mapfile - macOS ships bash 3.2
+  CHALLENGES=()
+  while IFS= read -r _line; do
+    [[ -n "$_line" ]] && CHALLENGES+=("$_line")
+  done < <(
     find challenges -mindepth 2 -maxdepth 2 -type d \
       | sed 's|challenges/||' \
       | grep -v '^0-' \

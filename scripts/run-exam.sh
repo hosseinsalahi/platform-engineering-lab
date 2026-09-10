@@ -4,13 +4,6 @@
 
 set -Eeuo pipefail
 
-if [[ "${BASH_VERSINFO[0]:-0}" -lt 4 ]]; then
-    echo "ERROR: bash >= 4 is required to run ${0##*/} (current: ${BASH_VERSION:-unknown})." >&2
-    echo "On macOS: install newer bash via Homebrew and ensure it is first in PATH." >&2
-    echo "Example: brew install bash && export PATH=\"/opt/homebrew/bin:$PATH\"" >&2
-    exit 1
-fi
-
 # shellcheck disable=SC2317,SC2329
 on_error() {
     local exit_code=$?
@@ -236,7 +229,11 @@ ensure_exam_ready() {
         echo "Error: failed to infer required tools from exam file: ${exam_path}" >&2
         exit 1
     fi
-    mapfile -t tools <<<"$tools_out"
+    # bash 3.2 (macOS) has no mapfile
+    tools=()
+    while IFS= read -r _line; do
+      [[ -n "$_line" ]] && tools+=("$_line")
+    done <<<"$tools_out"
     if [[ ${#tools[@]} -eq 0 ]]; then
         echo "Error: failed to infer required tools from exam file: ${exam_path}" >&2
         exit 1
@@ -311,17 +308,23 @@ EXAM_TIME_MINUTES=$(yq -r '.totalMinutes // 120' "$EXAM_FILE")
 PASSING_PERCENTAGE=67
 
 # Read challenges into arrays
-mapfile -t CHALLENGES < <(yq -r '.sections[].challenge' "$EXAM_FILE" 2>/dev/null || true)
-mapfile -t OBJECTIVES < <(yq -r '.sections[].objective' "$EXAM_FILE" 2>/dev/null || true)
-mapfile -t DOMAINS < <(yq -r '.sections[].domain' "$EXAM_FILE" 2>/dev/null || true)
-mapfile -t SECTION_IDS < <(yq -r '.sections[].id' "$EXAM_FILE" 2>/dev/null || true)
-mapfile -t MINUTES < <(yq -r '.sections[].minutes' "$EXAM_FILE" 2>/dev/null || true)
+CHALLENGES=()
+while IFS= read -r _line; do CHALLENGES+=("$_line"); done < <(yq -r '.sections[].challenge' "$EXAM_FILE" 2>/dev/null || true)
+OBJECTIVES=()
+while IFS= read -r _line; do OBJECTIVES+=("$_line"); done < <(yq -r '.sections[].objective' "$EXAM_FILE" 2>/dev/null || true)
+DOMAINS=()
+while IFS= read -r _line; do DOMAINS+=("$_line"); done < <(yq -r '.sections[].domain' "$EXAM_FILE" 2>/dev/null || true)
+SECTION_IDS=()
+while IFS= read -r _line; do SECTION_IDS+=("$_line"); done < <(yq -r '.sections[].id' "$EXAM_FILE" 2>/dev/null || true)
+MINUTES=()
+while IFS= read -r _line; do MINUTES+=("$_line"); done < <(yq -r '.sections[].minutes' "$EXAM_FILE" 2>/dev/null || true)
 
 TOTAL_TASKS=${#CHALLENGES[@]}
 PASSING_SCORE=$(( TOTAL_TASKS * PASSING_PERCENTAGE / 100 ))
 
 # Track results
-declare -A TASK_RESULTS
+# keys are task numbers, so a plain indexed array works on bash 3.2
+TASK_RESULTS=()
 
 count_statuses() {
     PASSED_TASKS=0
@@ -574,12 +577,12 @@ run_exam() {
                 if "${cmd[@]}"; then
                     echo ""
                     echo -e "${GREEN}${BOLD}Task $TASK_NUM: PASSED${NC}"
-                    TASK_RESULTS[$TASK_NUM]="PASSED"
+                    TASK_RESULTS[TASK_NUM]="PASSED"
                 else
                     echo ""
                     echo -e "${RED}${BOLD}Task $TASK_NUM: FAILED${NC}"
                     echo "Review your work and try again if time permits."
-                    TASK_RESULTS[$TASK_NUM]="FAILED"
+                    TASK_RESULTS[TASK_NUM]="FAILED"
                 fi
 
                 echo ""
@@ -589,7 +592,7 @@ run_exam() {
                 ;;
             s|S)
                 echo -e "${YELLOW}Task skipped. You can return to it later.${NC}"
-                TASK_RESULTS[$TASK_NUM]="SKIPPED"
+                TASK_RESULTS[TASK_NUM]="SKIPPED"
                 sleep 2
                 i=$((i + 1))
                 ;;
