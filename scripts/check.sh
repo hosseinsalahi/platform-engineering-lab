@@ -100,10 +100,14 @@ ok "kubectl kuttl available"
 
 # Python + PyYAML for assert parsing helper
 command -v python3 >/dev/null 2>&1 || die "python3 missing"
-python3 - <<'PY' 2>/dev/null || die "PyYAML missing (pip install pyyaml)"
-import yaml
-print('ok')
-PY
+if ! python3 -c 'import yaml' >/dev/null 2>&1; then
+  printf "  \033[0;31m✗\033[0m %s\n" "PyYAML missing - Homebrew and Debian pythons refuse pip installs (PEP 668)"
+  printf "      %s\n" "Install it in a virtualenv. With uv:"
+  printf "      %s\n" "uv venv && uv pip install pyyaml && source .venv/bin/activate"
+  printf "      %s\n" "Without uv:"
+  printf "      %s\n" "python3 -m venv .venv && .venv/bin/pip install pyyaml && source .venv/bin/activate"
+  exit 1
+fi
 ok "python3 + PyYAML available"
 
 # Optional tooling

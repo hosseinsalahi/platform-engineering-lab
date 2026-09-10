@@ -130,7 +130,8 @@ if [[ ${#CHALLENGES[@]} -eq 0 ]]; then
 fi
 
 # Track results
-declare -A RESULTS
+# indexed by position in CHALLENGES - bash 3.2 has no associative arrays
+RESULTS=()
 CURRENT_IDX=$((START_AT - 1))
 TOTAL=${#CHALLENGES[@]}
 EXAM_START=$(date +%s)
@@ -163,7 +164,7 @@ show_challenge_list() {
     for i in "${!CHALLENGES[@]}"; do
         local num=$((i + 1))
         local name="${CHALLENGES[$i]}"
-        local status="${RESULTS[$name]:-pending}"
+        local status="${RESULTS[$i]:-pending}"
         local marker=" "
         local color="$NC"
 
@@ -201,7 +202,7 @@ run_challenge() {
     [[ -n "$TIMEOUT" ]] && cmd+=("--timeout" "$TIMEOUT")
 
     if "${cmd[@]}"; then
-        RESULTS["$challenge"]="PASS"
+        RESULTS[CURRENT_IDX]="PASS"
         return 0
     else
         local exit_code=$?
@@ -209,7 +210,7 @@ run_challenge() {
             # Ctrl+C - don't mark as failed
             return 130
         fi
-        RESULTS["$challenge"]="FAIL"
+        RESULTS[CURRENT_IDX]="FAIL"
         return 1
     fi
 }
@@ -231,8 +232,9 @@ show_summary() {
     printf "%-40s %s\n" "Challenge" "Status"
     echo "────────────────────────────────────────────────────────"
 
-    for name in "${CHALLENGES[@]}"; do
-        local status="${RESULTS[$name]:-pending}"
+    for i in "${!CHALLENGES[@]}"; do
+        local name="${CHALLENGES[$i]}"
+        local status="${RESULTS[$i]:-pending}"
         local status_text=""
 
         case "$status" in
@@ -361,7 +363,7 @@ while true; do
             read -r </dev/tty 2>/dev/null || read -r
             ;;
         s|S|skip)
-            RESULTS["${CHALLENGES[$CURRENT_IDX]}"]="SKIP"
+            RESULTS[CURRENT_IDX]="SKIP"
             if [[ $((CURRENT_IDX + 1)) -lt $TOTAL ]]; then
                 ((CURRENT_IDX++))
             else

@@ -93,6 +93,10 @@ install-cli *ARGS:
 upgrade-cli *ARGS:
   bash ./scripts/upgrade-cli.sh {{ARGS}}
 
+# Diagnose the environment: toolchain, cluster, components, leftover state
+doctor *ARGS:
+  bash ./scripts/doctor.sh {{ARGS}}
+
 # Preflight validation for exercises
 preflight *ARGS:
   python3 ./scripts/preflight.py {{ARGS}}

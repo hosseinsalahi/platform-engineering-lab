@@ -29,6 +29,7 @@ echo "Checking --help for repo CLIs..."
 
 # Scripts
 run "scripts/check.sh --help" bash ./scripts/check.sh --help
+run "scripts/doctor.sh --help" bash ./scripts/doctor.sh --help
 run "scripts/install-cli.sh --help" ./scripts/install-cli.sh --help
 run "scripts/upgrade-cli.sh --help" bash ./scripts/upgrade-cli.sh --help
 run "scripts/run-domain.sh --help" ./scripts/run-domain.sh --help

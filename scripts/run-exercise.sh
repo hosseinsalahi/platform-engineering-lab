@@ -332,12 +332,13 @@ echo -e "${GREEN}Setup complete. Fix the problem now!${NC}"
 echo ""
 
 # Load step descriptions
-declare -A STEP_DESC
+# keys are step numbers, so a plain indexed array works on bash 3.2
+STEP_DESC=()
 if [[ -f "${EXERCISE_DIR}/steps.txt" ]]; then
     while IFS=: read -r num desc; do
         # Skip empty lines or lines without valid step numbers
         [[ -z "$num" || ! "$num" =~ ^[0-9]+$ ]] && continue
-        STEP_DESC[$num]="$desc"
+        STEP_DESC[num]="$desc"
     done < "${EXERCISE_DIR}/steps.txt"
 fi
 

@@ -8,6 +8,8 @@
     "kubernetes-helm@4.2.4",
     "kuttl@0.26.0",
     "kyverno@1.19.0",
+    "python314Packages.pyyaml@6.0.3",
+    "python@3.14",
     "shellcheck@0.10.0",
     "tektoncd-cli@0.43.0",
     "yq-go@4.44.3"
