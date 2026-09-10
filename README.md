@@ -19,6 +19,7 @@ just provision          # kind cluster + all platform tools (~10-15 min)
 just gitops-fix     # run a challenge
 just destroy        # cleanup
 just check          # verify required tooling
+just doctor         # diagnose toolchain, cluster, components, leftover state
 just preflight      # validate challenges & asserts
 just check-docs     # verify markdown links
 just lint-sh        # shellcheck scripts (devbox provides it)
@@ -39,23 +40,38 @@ Note: some runners generate a local `kubeconfig` file in the repo root; it is in
 **Required**:
 - Podman, kind, kubectl, helm, [kuttl](https://kuttl.dev/docs/cli.html)
   - KUTTL must be installed as the kubectl plugin so `kubectl kuttl` works
-  - Python 3 with PyYAML for helper output in the runner (`pip install pyyaml`)
+  - Python 3 with PyYAML for helper output in the runner (see [Python and PyYAML](#python-and-pyyaml))
   - **macOS with Apple Silicon**: Podman machine must be initialized and running (see installation instructions below)
 
 If you want a lighter cluster, use `just provision-exam <exam.yaml>` (installs only the components required for that exam) or `just provision-minimal` (cluster only).
 
 **Optional** CLI tools via devbox:
 ```bash
-devbox shell  # argocd, tkn, kyverno, istioctl
+devbox shell  # argocd, tkn, kyverno, istioctl, plus python + PyYAML
 ```
 Or install `yq` locally, which is recommended for YAML parsing in tooling.
+
+### Python and PyYAML
+
+`scripts/preflight.py`, `check-md-links.py`, `exam-tools.py` and `solve-exam.py` need
+PyYAML. Current Homebrew and Debian/Ubuntu pythons are marked externally managed
+(PEP 668) and refuse `pip install`, so use a virtualenv in the repo:
+
+```bash
+uv venv && uv pip install pyyaml && source .venv/bin/activate
+# without uv:
+python3 -m venv .venv && .venv/bin/pip install pyyaml && source .venv/bin/activate
+```
+
+`just preflight`, `just doctor` and `just solve` then work unchanged. `devbox shell`
+provides the same thing if you use devbox.
 
 ## CLI Install (if not using devbox)
 
 macOS (Homebrew):
 ```bash
 brew install kuttl kind kubernetes-cli helm istioctl tektoncd-cli argocd kyverno yq
-python3 -m pip install --user pyyaml
+uv venv && uv pip install pyyaml && source .venv/bin/activate   # see Python and PyYAML
 ```
 
 Ubuntu/Debian (examples):
@@ -64,7 +80,8 @@ sudo apt-get update && sudo apt-get install -y podman
 curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.20.0/kind-linux-amd64 && chmod +x ./kind && sudo mv ./kind /usr/local/bin/
 curl -LO "https://dl.k8s.io/release/$(curl -Ls https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl" && chmod +x kubectl && sudo mv kubectl /usr/local/bin/
 brew install helm || curl -fsSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
-python3 -m pip install --user kuttl pyyaml
+python3 -m venv .venv && .venv/bin/pip install pyyaml && source .venv/bin/activate
+# kuttl is a kubectl plugin, not a pip package: https://kuttl.dev/docs/cli.html
 # Configure kind to use podman
 export KIND_EXPERIMENTAL_PROVIDER=podman
 ```
