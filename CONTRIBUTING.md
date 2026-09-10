@@ -1,5 +1,7 @@
 # Contributing
 
+Working with an AI coding agent? [AGENTS.md](AGENTS.md) records the invariants in this file that are easiest to violate.
+
 ## Local checks
 
 Run these before opening a PR; CI runs the same four:
@@ -11,7 +13,7 @@ just lint-sh       # shellcheck -x scripts/*.sh
 yamllint -c .yamllint .
 ```
 
-`preflight` needs PyYAML (`pip install pyyaml`). CI additionally provisions a minimal
+`preflight` needs PyYAML in a virtualenv (see [README](README.md#python-and-pyyaml)). CI additionally provisions a minimal
 kind cluster and runs the `0-test/simple-pod` smoke test.
 
 ## Repository layout
@@ -113,3 +115,6 @@ permanently fixed in the working tree. See
 - Comment the injected bug in `setup.yaml` (`# BUG 1: ...`) — it documents intent for
   reviewers, and the file is not shown to the person taking the challenge.
 - Link only to official upstream documentation under "Allowed Documentation".
+- Shell scripts must run on **bash 3.2** - that is what macOS ships, and CI's Ubuntu
+  bash 5 will not catch a regression. No `mapfile`/`readarray`, no `declare -A`
+  (index by position instead), no `${var,,}`/`${var^^}`, no `wait -n`.
