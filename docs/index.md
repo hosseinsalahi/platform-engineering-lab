@@ -5,8 +5,10 @@ or incomplete platform component on a real Kubernetes cluster and validates your
 [KUTTL](https://kuttl.dev/) assertions on a timer.
 
 35 challenges across 9 practical domains. This is a hands-on lab rather than an exam
-simulator — see the README for how it maps to the [CNPA certification](https://www.cncf.io/training/certification/cnpa/)
-and which of its domains are not covered here.
+simulator — see the README for how it maps to the hands-on
+[CNPE](https://www.cncf.io/training/certification/cnpe/) and multiple-choice
+[CNPA](https://www.cncf.io/training/certification/cnpa/) certifications, and which of their
+domains are not covered here.
 
 ## Quick Start
 

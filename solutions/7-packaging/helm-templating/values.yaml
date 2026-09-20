@@ -1,9 +1,10 @@
-replicaCount: 3
+replicaCount: 2
 
 image:
   repository: nginx
-  tag: "1.25"
+  pullPolicy: IfNotPresent
+  tag: "1.19"
 
 service:
+  type: ClusterIP
   port: 80
-  targetPort: 8080

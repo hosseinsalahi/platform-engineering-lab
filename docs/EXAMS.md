@@ -1,8 +1,8 @@
 # Exams
 
 Two timed practice sets are provided under `exams/`. They bundle challenges into a single
-sitting with a per-task budget; they are not simulations of the CNPA exam, which is
-multiple-choice.
+sitting with a per-task budget. They are not simulations of a certification exam: CNPE is
+hands-on but these sets are not derived from it, and CNPA is multiple-choice.
 
 ## Usage
 

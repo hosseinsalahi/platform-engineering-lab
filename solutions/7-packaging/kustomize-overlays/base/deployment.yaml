@@ -13,11 +13,9 @@ spec:
         app: my-app
     spec:
       containers:
-      - name: my-app
-        image: nginx:1.25
-        ports:
-        - containerPort: 80
+      - name: app
+        image: nginx:alpine
         resources:
-          limits:
-            memory: 128Mi
-            cpu: 100m
+          requests:
+            memory: "64Mi"
+            cpu: "250m"

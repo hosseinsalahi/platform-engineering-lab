@@ -64,9 +64,11 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Solve challenges
+        env:
+          ONLY_CHALLENGE: ${{ inputs.challenge }}
         run: |
-          if [ -n "${{ inputs.challenge }}" ]; then
-            ./scripts/solve-all.sh --only "${{ inputs.challenge }}"
+          if [ -n "${ONLY_CHALLENGE}" ]; then
+            ./scripts/solve-all.sh --only "${ONLY_CHALLENGE}"
           else
             ./scripts/solve-all.sh
           fi

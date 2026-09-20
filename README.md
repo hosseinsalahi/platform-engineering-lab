@@ -61,7 +61,7 @@ python3 -m pip install --user pyyaml
 Ubuntu/Debian (examples):
 ```bash
 sudo apt-get update && sudo apt-get install -y podman
-curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.20.0/kind-linux-amd64 && chmod +x ./kind && sudo mv ./kind /usr/local/bin/
+curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.33.0/kind-linux-amd64 && chmod +x ./kind && sudo mv ./kind /usr/local/bin/
 curl -LO "https://dl.k8s.io/release/$(curl -Ls https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl" && chmod +x kubectl && sudo mv kubectl /usr/local/bin/
 brew install helm || curl -fsSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
 python3 -m pip install --user kuttl pyyaml
@@ -259,18 +259,36 @@ challenges/1-gitops/broken-sync/
 - **Use the docs**: Each challenge README links to relevant documentation
 - **Check steps.txt**: Hints available if stuck
 
-## Relationship to the CNPA Certification
+## Relationship to the CNPE and CNPA Certifications
 
-This repo is a **hands-on lab**, not an exam simulator. It is worth being precise about
-that, because the two are different things.
+This repo is a **hands-on lab**, not an exam simulator. Two CNCF/Linux Foundation
+certifications are relevant, and they are different kinds of exam.
 
-The relevant certification is the CNCF/Linux Foundation
-[Certified Cloud Native Platform Engineering Associate (CNPA)](https://www.cncf.io/training/certification/cnpa/),
-which is an online, proctored, **multiple-choice** exam — there is no practical component
-to simulate. Working through these challenges is a good way to *understand* the material;
-it is not a mock exam, and the per-challenge timer here is a focus device, not a
-reproduction of exam conditions.
+### CNPE — the one this repo is shaped around
 
+The [Certified Cloud Native Platform Engineer (CNPE)](https://www.cncf.io/training/certification/cnpe/)
+is an online, proctored, **performance-based** exam: 120 minutes of tasks solved in a
+terminal and web UIs. Domains `1`–`5` here follow its published domains and weights:
+
+| CNPE domain | Weight | Directory |
+|---|---|---|
+| GitOps and Continuous Delivery | 25% | `1-gitops` |
+| Platform APIs and Self-Service Capabilities | 25% | `2-apis` |
+| Observability and Operations | 20% | `3-observability` |
+| Platform Architecture and Infrastructure | 15% | `4-architecture` |
+| Security and Policy Enforcement | 15% | `5-security` |
+
+Domains `6`–`9` are bonus material outside the CNPE weighting. The challenges are written
+independently of the exam: they are not derived from exam content, the tool selection is
+this repo's own, and the per-challenge timer is a focus device rather than a reproduction
+of exam conditions. The number of challenges per domain reflects what makes a good
+scenario, not the weights above.
+
+### CNPA — the associate-level, multiple-choice exam
+
+The [Certified Cloud Native Platform Engineering Associate (CNPA)](https://www.cncf.io/training/certification/cnpa/)
+is an online, proctored, **multiple-choice** exam, so there is nothing practical to
+simulate. Working through these challenges is a good way to *understand* the material.
 CNPA's published domains, and where this repo lands against them:
 
 | CNPA domain | Weight | Covered here |
@@ -282,13 +300,10 @@ CNPA's published domains, and where this repo lands against them:
 | IDPs and Developer Experience | 8% | Partly — `8-devex` covers self-service golden paths; portal/catalog tooling is not exercised |
 | Measuring your Platform | 8% | Partly — `9-measurement` covers platform-side DORA signals; delivery-pipeline and incident data are not |
 
-Every CNPA domain now has at least one challenge, but the coverage is uneven: the
-largest domain is mostly conceptual and only partly exercised here, and the two 8%
-domains are touched rather than covered. If you are preparing for CNPA, use this
-alongside the official curriculum rather than instead of it.
-
-The directories under `challenges/` are organised by practical subject, not by CNPA
-weighting — they are sized by what makes a good hands-on scenario.
+Every CNPA domain has at least one challenge, but the coverage is uneven: the largest
+domain is mostly conceptual and only partly exercised here, and the two 8% domains are
+touched rather than covered. For either certification, use this alongside the official
+curriculum rather than instead of it.
 
 ## License
 

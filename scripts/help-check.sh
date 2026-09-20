@@ -35,7 +35,6 @@ run "scripts/run-domain.sh --help" ./scripts/run-domain.sh --help
 run "scripts/run-exercise.sh --help" ./scripts/run-exercise.sh --help
 run "scripts/run-exam.sh --help" ./scripts/run-exam.sh --help
 run "scripts/parse-assert.sh --help" bash ./scripts/parse-assert.sh --help
-run "scripts/auto-fix.sh --help" bash ./scripts/auto-fix.sh --help
 run "scripts/preflight.py --help" python3 ./scripts/preflight.py --help
 run "scripts/check-md-links.py --help" python3 ./scripts/check-md-links.py --help
 run "scripts/exam-tools.py --help" python3 ./scripts/exam-tools.py --help
