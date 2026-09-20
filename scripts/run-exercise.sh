@@ -41,6 +41,8 @@ get_domain_desc() {
         "5-security") echo "Security and Policy Enforcement (15%)" ;;
         "6-scalability") echo "Scalability and Performance" ;;
         "7-packaging") echo "Package Management (Helm/Kustomize)" ;;
+        "8-devex") echo "Developer Experience" ;;
+        "9-measurement") echo "Measuring your Platform" ;;
         "0-test") echo "Test Setup (validation only)" ;;
         *) echo "Unknown" ;;
     esac
@@ -361,7 +363,6 @@ else
 fi
 
 # Non-interactive mode: use shorter KUTTL timeout with retry loop
-# This allows the auto-fixer time to apply solutions between retries
 if [[ "$INTERACTIVE_MODE" == "false" ]]; then
     KUTTL_ATTEMPT_TIMEOUT=30
     KUTTL_CMD="kubectl kuttl test ${DOMAIN_DIR} --config ${DOMAIN_DIR}/kuttl-test.yaml --test ${EXERCISE} --timeout ${KUTTL_ATTEMPT_TIMEOUT}"

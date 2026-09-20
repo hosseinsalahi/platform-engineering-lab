@@ -1,4 +1,6 @@
 apiVersion: v2
 name: web-app
-version: 1.0.0
-description: A simple web application Helm chart
+description: A broken web app chart
+type: application
+version: 0.1.0
+appVersion: "1.16.0"

@@ -61,7 +61,7 @@ provision-tools *ARGS:
   esac'
 
 # Print which tools an exam needs (for selective setup)
-# - `just exam-tools exams/mock-exam-1.yaml`
+# - `just exam-tools exam-1`
 # - `just exam-tools --help`
 exam-tools *ARGS:
   @bash -c 'set -- {{ARGS}}; for a in "$@"; do case "$a" in -h|--help) set -- --help; break ;; esac; done; case "${1:-}" in ""|--help|-h) \

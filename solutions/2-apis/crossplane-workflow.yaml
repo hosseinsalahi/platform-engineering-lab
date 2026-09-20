@@ -1,64 +1,75 @@
+# XRD - defines the self-service API.
+# apiextensions.crossplane.io/v2 with scope: Namespaced is the current model:
+# developers create the composite resource directly in their own namespace.
 apiVersion: apiextensions.crossplane.io/v2
 kind: CompositeResourceDefinition
 metadata:
   name: xdatabaserequests.platform.cnpe.io
 spec:
+  scope: Namespaced
   group: platform.cnpe.io
   names:
     kind: XDatabaseRequest
     plural: xdatabaserequests
-  claimNames:
-    kind: DatabaseRequest
-    plural: databaserequests
-  connectionSecretKeys:
-  - username
-  - password
-  - endpoint
   versions:
-  - name: v1
-    served: true
-    referenceable: true
-    schema:
-      openAPIV3Schema:
-        type: object
-        properties:
-          spec:
-            type: object
-            required:
-            - size
-            - engine
-            properties:
-              size:
-                type: string
-                enum: [small, medium, large]
-              engine:
-                type: string
-                enum: [postgres, mysql]
+    - name: v1
+      served: true
+      referenceable: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              properties:
+                size:
+                  type: string
+                  enum: [small, medium, large]
+                engine:
+                  type: string
+                  enum: [postgres, mysql]
+              required: [size, engine]
 ---
+# Composition - what the platform builds for that API.
+# Composition is still apiextensions.crossplane.io/v1 in Crossplane 2.x.
 apiVersion: apiextensions.crossplane.io/v1
 kind: Composition
 metadata:
   name: database-composition
 spec:
+  mode: Pipeline
   compositeTypeRef:
     apiVersion: platform.cnpe.io/v1
     kind: XDatabaseRequest
-  resources:
-  - name: database-config
-    base:
-      apiVersion: v1
-      kind: ConfigMap
-      metadata:
-        namespace: cnpe-selfservice-test
-      data:
-        endpoint: "database.example.com"
-        username: "admin"
+  pipeline:
+    - step: patch-and-transform
+      functionRef:
+        name: function-patch-and-transform
+      input:
+        apiVersion: pt.fn.crossplane.io/v1beta1
+        kind: Resources
+        resources:
+          - name: connection-config
+            base:
+              apiVersion: kubernetes.crossplane.io/v1alpha2
+              kind: Object
+              spec:
+                forProvider:
+                  manifest:
+                    apiVersion: v1
+                    kind: ConfigMap
+                    metadata:
+                      namespace: cnpe-selfservice-test
+                    data:
+                      host: "db.internal"
+                      port: "5432"
 ---
+# A developer's request - a namespaced composite resource, created directly.
 apiVersion: platform.cnpe.io/v1
-kind: DatabaseRequest
+kind: XDatabaseRequest
 metadata:
   name: test-db
   namespace: cnpe-selfservice-test
 spec:
-  size: medium
+  size: small
   engine: postgres

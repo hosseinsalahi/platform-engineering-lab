@@ -49,3 +49,7 @@ metadata:
 spec:
   engine: postgres
   size: medium
+# The last assert checks status.phase, and with the status subresource enabled
+# `kubectl apply` drops .status. Set it through the subresource after applying:
+#   kubectl patch databaseclaim test-db -n cnpe-crd-status-test \
+#     --type=merge --subresource=status -p '{"status":{"phase":"Ready"}}'

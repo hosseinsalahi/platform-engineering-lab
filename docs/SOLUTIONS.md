@@ -2,8 +2,8 @@
 
 A knowledge reference for platform engineers, organized by the practical domains used in
 this repo. Each chapter explains the **why** behind platform patterns, with exercises to
-reinforce understanding. It is not structured to the CNPA exam's own domain weighting —
-see the README for that mapping.
+reinforce understanding. Chapters 1–5 follow the CNPE exam domains; it is not structured to
+the CNPA exam's domain weighting — see the README for both mappings.
 
 ### Core Principles (CNCF Platforms Whitepaper)
 

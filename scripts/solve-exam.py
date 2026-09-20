@@ -450,7 +450,7 @@ def sanitize_script(script: str) -> str:
 
             # If a solution uses watch on any resource, drop the watch so we don't hang forever.
             if re.search(r"\s(-w|--watch)\b", stripped):
-                no_watch = re.sub(r"\s(-w|--watch)(=[^\\s]+)?\b", "", line).rstrip()
+                no_watch = re.sub(r"\s(-w|--watch)(=\S+)?\b", "", line).rstrip()
                 out.append(f"{no_watch} || true")
                 continue
 
