@@ -81,7 +81,7 @@ kubectl argo rollouts status payment-api -n cnpe-bluegreen-test
 3. **autoPromotionEnabled: false** - Requires manual promotion after testing
 4. **No version selectors** - Argo Rollouts manages pod selection via rollout-pod-template-hash
 
-## Promotion Commands
+## Reference: Promotion Commands
 
 ```bash
 # After testing preview, promote to active
