@@ -36,6 +36,8 @@ get_domain_desc() {
         "5-security") echo "Security and Policy Enforcement (15%)" ;;
         "6-scalability") echo "Scalability and Performance" ;;
         "7-packaging") echo "Package Management (Helm/Kustomize)" ;;
+        "8-devex") echo "Developer Experience" ;;
+        "9-measurement") echo "Measuring your Platform" ;;
         "0-test") echo "Test Setup (validation only)" ;;
         *) echo "Unknown Domain" ;;
     esac
