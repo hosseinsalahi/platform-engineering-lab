@@ -46,6 +46,14 @@ that exam actually needs.
 5. **Adding a challenge is a four-part change**, not one directory: the challenge files,
    a `justfile` recipe using `_run`, an entry in `exams/`, and a README bullet plus the
    challenge count. A challenge missing from `exams/` is unreachable.
+   - The count is hardcoded in `README.md` (twice), `docs/index.md` and a comment in
+     `.github/workflows/nightly.yml`.
+   - `just provision-exam` infers tools from the kinds in `setup.yaml` and the asserts,
+     plus a hardcoded map in `scripts/exam-tools.py`. A challenge whose tool dependency
+     shows in neither needs an entry in `_tools_from_challenge_path`.
+   - A new domain also needs a `kuttl-test.yaml`, an `exams/domain-<name>.yaml`, a
+     `domain-<name>` recipe, and a `get_domain_desc` entry in both
+     `scripts/run-exercise.sh` and `scripts/run-domain.sh`.
 6. **Pin versions.** Chart versions live in `scripts/chart-versions.env`; renovate tracks
    them. Do not introduce floating tags.
 7. **Shell scripts must run on bash 3.2**, the version macOS ships. CI runs Ubuntu's
