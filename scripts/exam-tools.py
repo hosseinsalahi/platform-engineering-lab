@@ -100,45 +100,45 @@ def _tools_from_challenge_path(challenge: str) -> Set[str]:
     # Fast-path mapping for cases where setup/asserts don’t include tool-specific kinds.
     tools: Set[str] = set()
 
-    # GitOps domain
-    if challenge.startswith("1-gitops/"):
-        tools.add("argocd")
-    if challenge in ("1-gitops/canary-rollout", "1-gitops/bluegreen"):
-        tools.add("argo-rollouts")
-    if challenge == "1-gitops/tekton-pipeline":
-        tools.add("tekton")
-    if challenge == "1-gitops/istio-canary":
-        tools.update({"istio", "argocd"})
-
-    # Observability domain
-    if challenge.startswith("3-observability/"):
-        tools.add("prometheus-stack")
-    if challenge == "3-observability/jaeger-trace":
-        tools.add("jaeger")
-    if challenge == "3-observability/cost-allocation":
-        tools.add("opencost")
-
-    # Architecture/Security (Istio)
+    # Architecture domain (Istio, OpenCost, HPA)
     if challenge in (
-        "4-architecture/istio-fault-injection",
-        "4-architecture/service-mesh",
+        "1-architecture/istio-fault-injection",
+        "1-architecture/service-mesh",
         "5-security/istio-mtls",
     ):
         tools.add("istio")
+    if challenge == "1-architecture/cost-allocation":
+        tools.add("opencost")
+    if challenge == "1-architecture/hpa-cpu":
+        tools.add("metrics-server")
 
-    # Security policy engines
-    if challenge == "5-security/kyverno-policy":
+    # GitOps domain
+    if challenge.startswith("2-gitops/"):
+        tools.add("argocd")
+    if challenge in ("2-gitops/canary-rollout", "2-gitops/bluegreen"):
+        tools.add("argo-rollouts")
+    if challenge == "2-gitops/tekton-pipeline":
+        tools.add("tekton")
+    if challenge == "2-gitops/istio-canary":
+        tools.update({"istio", "argocd"})
+
+    # Platform APIs (Crossplane)
+    if challenge == "3-apis/crossplane-workflow":
+        tools.add("crossplane")
+
+    # Observability domain (structured-logging uses only core Kubernetes APIs)
+    if challenge.startswith("4-observability/") and challenge != "4-observability/structured-logging":
+        tools.add("prometheus-stack")
+    if challenge == "4-observability/jaeger-trace":
+        tools.add("jaeger")
+
+    # Security policy engines and pipeline security
+    if challenge in ("5-security/kyverno-policy", "5-security/audit-compliance-policy", "7-devex/golden-path"):
         tools.add("kyverno")
     if challenge == "5-security/gatekeeper-constraint":
         tools.add("gatekeeper")
-
-    # Crossplane
-    if challenge == "2-apis/crossplane-workflow":
-        tools.add("crossplane")
-
-    # HPA needs metrics-server in kind.
-    if challenge == "6-scalability/hpa-cpu":
-        tools.add("metrics-server")
+    if challenge == "5-security/pipeline-security-scan":
+        tools.add("tekton")
 
     return tools
 

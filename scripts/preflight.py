@@ -51,7 +51,7 @@ def load_docs(p: Path):
 # Namespaces owned by the platform install (or by Kubernetes itself). A challenge
 # that declares one of these in setup.yaml also deletes it on cleanup, because
 # cleanup runs `kubectl delete -f setup.yaml` - which uninstalls whatever lives
-# there. 4-architecture/network-policy did exactly this to `monitoring`, taking
+# there. 1-architecture/network-policy did exactly this to `monitoring`, taking
 # kube-prometheus-stack with it and breaking three other challenges.
 RESERVED_NAMESPACES = {
     'monitoring', 'istio-system', 'argocd', 'argo-rollouts', 'kyverno',

@@ -6,44 +6,44 @@ instructions:
   - "Treat this like an exam: no peeking at `answer.md`."
   - "Use `just exam-2` to run."
 sections:
+  - id: "arch-1"
+    domain: "Platform Architecture (15%)"
+    minutes: 18
+    challenge: "1-architecture/network-policy"
+    objective: "Implement correct NetworkPolicies for multi-tenant isolation."
+
   - id: "gitops-1"
     domain: "GitOps (25%)"
     minutes: 15
-    challenge: "1-gitops/env-promotion"
+    challenge: "2-gitops/env-promotion"
     objective: "Fix an ApplicationSet promotion workflow across environments."
   - id: "gitops-2"
     domain: "GitOps (25%)"
     minutes: 15
-    challenge: "1-gitops/tekton-pipeline"
+    challenge: "2-gitops/tekton-pipeline"
     objective: "Repair Tekton Trigger configuration so PipelineRuns are created."
 
   - id: "apis-1"
     domain: "Platform APIs (25%)"
     minutes: 15
-    challenge: "2-apis/operator-rbac"
+    challenge: "3-apis/operator-rbac"
     objective: "Fix operator RBAC so reconciliation works."
   - id: "apis-2"
     domain: "Platform APIs (25%)"
     minutes: 15
-    challenge: "2-apis/crossplane-workflow"
+    challenge: "3-apis/crossplane-workflow"
     objective: "Complete the Crossplane self-service workflow and satisfy checks."
 
   - id: "obs-1"
     domain: "Observability (20%)"
     minutes: 12
-    challenge: "3-observability/incident-fix"
+    challenge: "4-observability/incident-fix"
     objective: "Diagnose and fix a failing workload using signals."
   - id: "obs-2"
     domain: "Observability (20%)"
     minutes: 12
-    challenge: "3-observability/jaeger-trace"
+    challenge: "4-observability/jaeger-trace"
     objective: "Trace a request path end-to-end and resolve the misconfiguration."
-
-  - id: "arch-1"
-    domain: "Architecture (15%)"
-    minutes: 18
-    challenge: "4-architecture/network-policy"
-    objective: "Implement correct NetworkPolicies for multi-tenant isolation."
 
   - id: "sec-1"
     domain: "Security (15%)"

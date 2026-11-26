@@ -1,0 +1,75 @@
+apiVersion: tekton.dev/v1
+kind: Task
+metadata:
+  name: security-scan
+  namespace: cnpe-pipeline-sec
+spec:
+  params:
+    - name: image
+      type: string
+  steps:
+    - name: scan-image
+      image: alpine:3.19
+      onError: stopAndFail
+      script: |
+        #!/bin/sh
+        set -eu
+        case "$(params.image)" in
+          *:latest)
+            echo "FAIL: mutable ':latest' tag is prohibited: $(params.image)" >&2
+            exit 1
+            ;;
+          *:*)
+            echo "PASS: pinned image tag verified: $(params.image)"
+            ;;
+          *)
+            echo "FAIL: untagged image is prohibited: $(params.image)" >&2
+            exit 1
+            ;;
+        esac
+---
+apiVersion: tekton.dev/v1
+kind: Pipeline
+metadata:
+  name: secure-release
+  namespace: cnpe-pipeline-sec
+spec:
+  params:
+    - name: image
+      type: string
+      default: "nginx:1.25"
+  tasks:
+    - name: build
+      taskRef:
+        name: build-image
+      params:
+        - name: image
+          value: $(params.image)
+    - name: security-scan
+      taskRef:
+        name: security-scan
+      runAfter:
+        - build
+      params:
+        - name: image
+          value: $(params.image)
+    - name: deploy
+      taskRef:
+        name: deploy-app
+      runAfter:
+        - security-scan
+      params:
+        - name: image
+          value: $(params.image)
+---
+apiVersion: tekton.dev/v1
+kind: PipelineRun
+metadata:
+  name: secure-release-verify
+  namespace: cnpe-pipeline-sec
+spec:
+  pipelineRef:
+    name: secure-release
+  params:
+    - name: image
+      value: "nginx:1.25"

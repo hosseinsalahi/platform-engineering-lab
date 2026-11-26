@@ -3,7 +3,7 @@
 ## Diagnosis
 
 ```bash
-helm template challenges/7-packaging/helm-templating/chart --debug
+helm template challenges/6-packaging/helm-templating/chart --debug
 ```
 
 Rendering fails with `nil pointer evaluating interface {}` because two template
@@ -32,7 +32,7 @@ challenge therefore stays re-runnable.
 ```bash
 cd "$(git rev-parse --show-toplevel)"
 WORK="$(mktemp -d)"
-cp -R challenges/7-packaging/helm-templating/chart "$WORK/chart"
+cp -R challenges/6-packaging/helm-templating/chart "$WORK/chart"
 
 cat > "$WORK/chart/templates/deployment.yaml" <<'CHART'
 apiVersion: apps/v1
@@ -70,7 +70,7 @@ helm upgrade --install web-app "$WORK/chart" -n cnpe-packaging --wait --timeout 
 ```
 
 If you prefer to edit in place, change the two expressions in
-`challenges/7-packaging/helm-templating/chart/templates/deployment.yaml` and run
+`challenges/6-packaging/helm-templating/chart/templates/deployment.yaml` and run
 `helm upgrade --install web-app ./chart -n cnpe-packaging` from the challenge
 directory — then `git checkout` the chart afterwards to restore the broken state.
 

@@ -2,8 +2,8 @@
 
 A knowledge reference for platform engineers, organized by the practical domains used in
 this repo. Each chapter explains the **why** behind platform patterns, with exercises to
-reinforce understanding. Chapters 1–5 follow the CNPE exam domains; it is not structured to
-the CNPA exam's domain weighting — see the README for both mappings.
+reinforce understanding. Chapters 1–5 follow the CNPE exam domains, order, and weights;
+it is not structured to the CNPA exam's domain weighting — see the README for both mappings.
 
 ### Core Principles (CNCF Platforms Whitepaper)
 
@@ -16,7 +16,124 @@ Success is measured by DORA metrics: deployment frequency, lead time, MTTR, chan
 
 ---
 
-## Chapter 1: GitOps and Continuous Delivery (25%)
+## Chapter 1: Platform Architecture and Infrastructure (15%)
+
+### Pattern: Network Isolation
+
+Kubernetes networks are flat by default—any pod can reach any pod. NetworkPolicies add segmentation:
+
+- **Default deny**: Start by blocking all traffic
+- **Allow specific**: Whitelist required communication
+- **Egress control**: Prevent data exfiltration
+
+Multi-tenant isolation requires policies that:
+1. Allow intra-namespace communication
+2. Block inter-namespace communication
+3. Allow DNS (kube-system port 53)
+4. Allow ingress controller access
+
+**Exercise:** [arch-networkpolicy](../challenges/1-architecture/network-policy/answer.md)
+
+### Pattern: Storage Configuration
+
+StorageClasses abstract storage provisioning:
+
+- **Provisioner**: What creates the volume (cloud provider, CSI driver)
+- **ReclaimPolicy**: What happens when PVC deleted
+  - `Delete`: Volume deleted (dev/test)
+  - `Retain`: Volume preserved (production data)
+- **VolumeBindingMode**:
+  - `Immediate`: Provision when PVC created
+  - `WaitForFirstConsumer`: Provision when pod scheduled (topology-aware)
+
+`WaitForFirstConsumer` is critical for multi-zone clusters—it ensures the volume is created in the same zone as the pod.
+
+**Exercise:** [arch-storage](../challenges/1-architecture/storage-class/answer.md)
+
+### Pattern: Resource Management
+
+Without limits, one team can consume entire cluster. ResourceQuota and LimitRange provide guardrails:
+
+**ResourceQuota**: Namespace-level caps
+- Total CPU/memory requests and limits
+- Number of pods, services, PVCs
+
+**LimitRange**: Per-pod/container defaults and constraints
+- Default requests/limits if not specified
+- Min/max allowed values
+
+Together they ensure fair sharing and prevent runaway workloads.
+
+**Exercise:** [arch-quota](../challenges/1-architecture/resource-quota/answer.md)
+
+### Pattern: Service Mesh Traffic Management
+
+Service meshes like Istio provide advanced traffic control:
+
+**VirtualService**: Route rules
+- Traffic splitting (canary)
+- Header-based routing (A/B testing)
+- Retries and timeouts
+
+**DestinationRule**: Backend configuration
+- Subsets (version labels)
+- Connection pool settings
+- Load balancing algorithm
+
+Traffic splitting enables risk-free deployments:
+```yaml
+route:
+  - destination: {subset: stable}
+    weight: 90
+  - destination: {subset: canary}
+    weight: 10
+```
+
+**Exercises:**
+- [arch-mesh](../challenges/1-architecture/service-mesh/answer.md)
+- [arch-fault](../challenges/1-architecture/istio-fault-injection/answer.md)
+- [arch-pdb](../challenges/1-architecture/pod-disruption-budget/answer.md)
+
+### Pattern: Cost Management and Right-Sizing
+
+Platform teams ensure workloads run efficiently at scale and attribute spend accurately across tenants.
+
+OpenCost tracks Kubernetes spending by:
+
+- **Namespace**: Team/project allocation
+- **Label**: Environment, app, cost-center
+- **Resource**: CPU, memory, storage
+
+Effective cost allocation requires consistent labeling conventions enforced by policy, including labels on pod templates where resource usage is measured.
+
+**Exercise:** [arch-cost](../challenges/1-architecture/cost-allocation/answer.md)
+
+### Pattern: Horizontal Pod Autoscaling
+
+Platform teams must ensure applications can handle traffic spikes without manual intervention. Kubernetes provides Horizontal Pod Autoscaling (HPA) to scale pods based on metrics.
+
+The HPA controller monitors metrics (usually CPU/Memory from Metrics Server) and adjusts the replica count:
+
+```yaml
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: my-app
+  minReplicas: 2
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 50
+```
+
+Key considerations:
+- **Resource Requests**: HPA requires CPU requests to be set on containers.
+- **Cool-down**: Prevents "flapping" by waiting before scaling down.
+
+**Exercise:** [arch-hpa](../challenges/1-architecture/hpa-cpu/answer.md)
+
+---
+
+## Chapter 2: GitOps and Continuous Delivery (25%)
 
 ### Why GitOps?
 
@@ -36,7 +153,7 @@ ArgoCD continuously reconciles cluster state with Git repositories. When applica
 - Path to manifests incorrect
 - Destination namespace doesn't exist
 
-**Exercise:** [gitops-fix](../challenges/1-gitops/broken-sync/answer.md)
+**Exercise:** [gitops-fix](../challenges/2-gitops/broken-sync/answer.md)
 
 ### Pattern: Multi-Environment Promotion with ApplicationSets
 
@@ -56,7 +173,7 @@ template:
 
 This creates three Applications from one definition. When you update the template, all environments update. Generators can also pull from Git directories, cluster labels, or external APIs.
 
-**Exercise:** [gitops-appset](../challenges/1-gitops/env-promotion/answer.md)
+**Exercise:** [gitops-appset](../challenges/2-gitops/env-promotion/answer.md)
 
 ### Pattern: Progressive Delivery
 
@@ -77,9 +194,9 @@ Automated analysis can pause/rollback if error rates spike.
 Argo Rollouts implements both patterns with Kubernetes-native CRDs.
 
 **Exercises:**
-- [gitops-canary](../challenges/1-gitops/canary-rollout/answer.md)
-- [gitops-bluegreen](../challenges/1-gitops/bluegreen/answer.md)
-- [gitops-istio](../challenges/1-gitops/istio-canary/answer.md)
+- [gitops-canary](../challenges/2-gitops/canary-rollout/answer.md)
+- [gitops-bluegreen](../challenges/2-gitops/bluegreen/answer.md)
+- [gitops-istio](../challenges/2-gitops/istio-canary/answer.md)
 
 ### Pattern: Event-Driven CI/CD with Tekton
 
@@ -93,11 +210,11 @@ Tekton provides Kubernetes-native CI/CD primitives:
 
 The key to Tekton Triggers is the parameter flow: TriggerBinding extracts data from events (like GitHub webhooks) and passes it to TriggerTemplate, which creates a PipelineRun with those parameters.
 
-**Exercise:** [gitops-tekton](../challenges/1-gitops/tekton-pipeline/answer.md) - Focuses on TriggerTemplate/TriggerBinding configuration
+**Exercise:** [gitops-tekton](../challenges/2-gitops/tekton-pipeline/answer.md) - Focuses on TriggerTemplate/TriggerBinding configuration
 
 ---
 
-## Chapter 2: Platform APIs and Self-Service (25%)
+## Chapter 3: Platform APIs and Self-Service Capabilities (25%)
 
 ### Why Platform APIs?
 
@@ -119,8 +236,8 @@ CRDs extend the Kubernetes API with your own resource types. A well-designed CRD
 The status subresource is critical—it allows controllers to update status without triggering spec validation, and prevents users from manually editing status.
 
 **Exercises:**
-- [platform-crd](../challenges/2-apis/platform-crd/answer.md)
-- [platform-crd-status](../challenges/2-apis/crd-status/answer.md)
+- [platform-crd](../challenges/3-apis/platform-crd/answer.md)
+- [platform-crd-status](../challenges/3-apis/crd-status/answer.md)
 
 ### Pattern: Operators for Automation
 
@@ -141,7 +258,7 @@ Common operator failures:
 - **Leader election**: Multiple replicas fighting for control
 - **Finalizers**: Stuck deletion because cleanup failed
 
-**Exercise:** [platform-operator](../challenges/2-apis/operator-rbac/answer.md)
+**Exercise:** [platform-operator](../challenges/3-apis/operator-rbac/answer.md)
 
 ### Pattern: Crossplane for Self-Service
 
@@ -178,16 +295,16 @@ Benefits of pipeline mode:
 
 The power is abstraction—developers request a "small postgres database" without knowing if it's RDS, Cloud SQL, or a StatefulSet.
 
-**Exercise:** [platform-selfservice](../challenges/2-apis/crossplane-workflow/answer.md) - Uses Crossplane v2 pipeline mode
+**Exercise:** [platform-selfservice](../challenges/3-apis/crossplane-workflow/answer.md) - Uses Crossplane v2 pipeline mode
 
 ---
 
-## Chapter 3: Observability and Operations (20%)
+## Chapter 4: Observability and Operations (20%)
 
 ### The Three Pillars
 
 - **Metrics**: Aggregated numerical data (Prometheus)
-- **Logs**: Discrete events with context (Loki, ELK)
+- **Logs**: Discrete events with context (Loki, Fluent Bit, ELK)
 - **Traces**: Request flow across services (Jaeger)
 
 Each answers different questions:
@@ -209,9 +326,17 @@ Common issues:
 - Missing labels in aggregations
 
 **Exercises:**
-- [obs-monitor](../challenges/3-observability/broken-servicemonitor/answer.md)
-- [obs-grafana](../challenges/3-observability/grafana-dashboard/answer.md)
-- [obs-alerting](../challenges/3-observability/prometheus-alert/answer.md)
+- [obs-monitor](../challenges/4-observability/broken-servicemonitor/answer.md)
+- [obs-grafana](../challenges/4-observability/grafana-dashboard/answer.md)
+- [obs-alerting](../challenges/4-observability/prometheus-alert/answer.md)
+
+### Pattern: Centralized Logging
+
+Kubernetes node log agents collect container `stdout` and `stderr`. When applications write
+logs to files on disk, a streaming sidecar shares an `emptyDir` volume and tails the file to
+`stdout`, while pod annotations opt the workload into log scraping and structured parsing.
+
+**Exercise:** [obs-logging](../challenges/4-observability/structured-logging/answer.md)
 
 ### Pattern: Distributed Tracing
 
@@ -227,21 +352,15 @@ OpenTelemetry standardizes trace propagation. Key environment variables:
 - `OTEL_EXPORTER_OTLP_ENDPOINT`: Where to send traces
 - `OTEL_PROPAGATORS`: How context flows between services
 
-**Exercise:** [obs-tracing](../challenges/3-observability/jaeger-trace/answer.md)
+**Exercise:** [obs-tracing](../challenges/4-observability/jaeger-trace/answer.md)
 
-### Pattern: Cost Management
+### Pattern: Measuring Platform Efficiency (DORA Metrics)
 
-Observability extends beyond system health to business metrics. The DORA framework measures platform effectiveness: deployment frequency, lead time for changes, time to restore (MTTR), and change failure rate.
+The DORA framework measures platform effectiveness: deployment frequency, lead time for
+changes, time to restore (MTTR), and change failure rate. Recording rules in Prometheus
+pre-compute cluster-side deployment and failure signals so dashboards query fast series.
 
-OpenCost tracks Kubernetes spending by:
-
-- **Namespace**: Team/project allocation
-- **Label**: Environment, app, cost-center
-- **Resource**: CPU, memory, storage
-
-Effective cost allocation requires consistent labeling conventions enforced by policy.
-
-**Exercise:** [obs-cost](../challenges/3-observability/cost-allocation/answer.md)
+**Exercise:** [obs-dora](../challenges/4-observability/dora-metrics/answer.md)
 
 ### Pattern: Incident Diagnosis
 
@@ -257,86 +376,7 @@ Common failure patterns:
 - `CrashLoopBackOff`: Container starts then exits (check logs)
 - `Pending`: No node can schedule (resources, taints, affinity)
 
-**Exercise:** [obs-incident](../challenges/3-observability/incident-fix/answer.md)
-
----
-
-## Chapter 4: Platform Architecture (15%)
-
-### Pattern: Network Isolation
-
-Kubernetes networks are flat by default—any pod can reach any pod. NetworkPolicies add segmentation:
-
-- **Default deny**: Start by blocking all traffic
-- **Allow specific**: Whitelist required communication
-- **Egress control**: Prevent data exfiltration
-
-Multi-tenant isolation requires policies that:
-1. Allow intra-namespace communication
-2. Block inter-namespace communication
-3. Allow DNS (kube-system port 53)
-4. Allow ingress controller access
-
-**Exercise:** [arch-networkpolicy](../challenges/4-architecture/network-policy/answer.md)
-
-### Pattern: Storage Configuration
-
-StorageClasses abstract storage provisioning:
-
-- **Provisioner**: What creates the volume (cloud provider, CSI driver)
-- **ReclaimPolicy**: What happens when PVC deleted
-  - `Delete`: Volume deleted (dev/test)
-  - `Retain`: Volume preserved (production data)
-- **VolumeBindingMode**:
-  - `Immediate`: Provision when PVC created
-  - `WaitForFirstConsumer`: Provision when pod scheduled (topology-aware)
-
-`WaitForFirstConsumer` is critical for multi-zone clusters—it ensures the volume is created in the same zone as the pod.
-
-**Exercise:** [arch-storage](../challenges/4-architecture/storage-class/answer.md)
-
-### Pattern: Resource Management
-
-Without limits, one team can consume entire cluster. ResourceQuota and LimitRange provide guardrails:
-
-**ResourceQuota**: Namespace-level caps
-- Total CPU/memory requests and limits
-- Number of pods, services, PVCs
-
-**LimitRange**: Per-pod/container defaults and constraints
-- Default requests/limits if not specified
-- Min/max allowed values
-
-Together they ensure fair sharing and prevent runaway workloads.
-
-**Exercise:** [arch-quota](../challenges/4-architecture/resource-quota/answer.md)
-
-### Pattern: Service Mesh Traffic Management
-
-Service meshes like Istio provide advanced traffic control:
-
-**VirtualService**: Route rules
-- Traffic splitting (canary)
-- Header-based routing (A/B testing)
-- Retries and timeouts
-
-**DestinationRule**: Backend configuration
-- Subsets (version labels)
-- Connection pool settings
-- Load balancing algorithm
-
-Traffic splitting enables risk-free deployments:
-```yaml
-route:
-  - destination: {subset: stable}
-    weight: 90
-  - destination: {subset: canary}
-    weight: 10
-```
-
-**Exercise:** [arch-mesh](../challenges/4-architecture/service-mesh/answer.md)
-**Exercise:** [arch-fault](../challenges/4-architecture/istio-fault-injection/answer.md)
-**Exercise:** [arch-pdb](../challenges/4-architecture/pod-disruption-budget/answer.md)
+**Exercise:** [obs-incident](../challenges/4-observability/incident-fix/answer.md)
 
 ---
 
@@ -351,24 +391,35 @@ Security isn't one control—it's layers:
 3. **Network**: Limit communication paths
 4. **Identity**: Authenticate and authorize all requests
 
-### Pattern: Policy Engines
+### Pattern: Policy Engines and Admission Controls
 
-Kyverno and OPA/Gatekeeper enforce policies at admission time:
+Kyverno, OPA/Gatekeeper, and native Kubernetes `ValidatingAdmissionPolicy` (CEL) enforce
+policies at admission time:
 
-- **Validate**: Reject non-compliant resources
+- **Validate**: Reject non-compliant resources (`Enforce`/`Deny`) or emit audit trails (`Audit`)
 - **Mutate**: Add defaults (labels, security contexts)
 - **Generate**: Create related resources automatically
+- **Background scanning**: Populate `PolicyReport` resources across existing workloads
 
 Example policies:
 - Require resource limits on all containers
-- Block privileged containers
-- Enforce image registry whitelist
-- Add default network policies
+- Require ownership or SBOM provenance annotations
+- Sync secrets safely via External Secrets Operator
 
 **Exercises:**
 - [security-policy](../challenges/5-security/kyverno-policy/answer.md)
 - [security-gatekeeper](../challenges/5-security/gatekeeper-constraint/answer.md)
-- [security-secrets](../challenges/5-security/external-secrets/answer.md)
+- [security-eso](../challenges/5-security/external-secrets/answer.md)
+- [security-vap](../challenges/5-security/validating-admission-policy/answer.md)
+- [security-audit](../challenges/5-security/audit-compliance-policy/answer.md)
+
+### Pattern: CI/CD Supply-Chain Security Gates
+
+Deployment pipelines must fail closed when security checks fail:
+- Never set `onError: continue` on mandatory image/artifact verification steps.
+- Gate deployment tasks explicitly behind scan tasks (`runAfter: ["security-scan"]`).
+
+**Exercise:** [security-pipeline](../challenges/5-security/pipeline-security-scan/answer.md)
 
 ### Pattern: RBAC
 
@@ -385,8 +436,9 @@ Common issues:
 
 Debug with: `kubectl auth can-i <verb> <resource> --as=<user>`
 
-**Exercise:** [security-rbac](../challenges/5-security/rbac-fix/answer.md)
-**Exercise:** [security-rbac-min](../challenges/5-security/rbac-minimal/answer.md)
+**Exercises:**
+- [security-rbac](../challenges/5-security/rbac-fix/answer.md)
+- [security-rbac-min](../challenges/5-security/rbac-minimal/answer.md)
 
 ### Pattern: Pod Security Standards
 
@@ -435,36 +487,7 @@ With both configured, all service communication is encrypted with automatic cert
 
 ---
 
-## Chapter 6: Scalability
-
-### Why Scalability?
-
-Platform teams must ensure applications can handle traffic spikes without manual intervention. Kubernetes provides Horizontal Pod Autoscaling (HPA) to scale pods based on metrics.
-
-### Pattern: Horizontal Pod Autoscaling
-
-The HPA controller monitors metrics (usually CPU/Memory from Metrics Server) and adjusts the replica count:
-
-```yaml
-spec:
-  scaleTargetRef:
-    apiVersion: apps/v1
-    kind: Deployment
-    name: my-app
-  minReplicas: 2
-  maxReplicas: 10
-  targetCPUUtilizationPercentage: 50
-```
-
-Key considerations:
-- **Resource Requests**: HPA requires CPU requests to be set on containers.
-- **Cool-down**: Prevents "flapping" by waiting before scaling down.
-
-**Exercise:** [scal-hpa](../challenges/6-scalability/hpa-cpu/answer.md)
-
----
-
-## Chapter 7: Packaging
+## Chapter 6: Packaging
 
 ### Why Packaging?
 
@@ -477,7 +500,7 @@ Helm is a package manager that uses Go templates to generate manifests. It provi
 - **Version Control**: Manage application versions as discrete charts.
 - **Dependency Management**: Define and install sub-charts.
 
-**Exercise:** [pkg-helm](../challenges/7-packaging/helm-templating/answer.md)
+**Exercise:** [pkg-helm](../challenges/6-packaging/helm-templating/answer.md)
 
 ### Pattern: Kustomize Overlays
 
@@ -485,7 +508,20 @@ Kustomize uses a "base and overlay" approach to manage variations across environ
 - **Base**: Common resource definitions.
 - **Overlay**: Environment-specific patches (e.g., higher replica count for prod).
 
-**Exercise:** [pkg-kustomize](../challenges/7-packaging/kustomize-overlays/answer.md)
+**Exercise:** [pkg-kustomize](../challenges/6-packaging/kustomize-overlays/answer.md)
+
+---
+
+## Chapter 7: Developer Experience
+
+### Pattern: Golden Paths
+
+Golden paths reduce developer cognitive load by generating namespace guardrails (`ResourceQuota`,
+default-deny `NetworkPolicy`, etc.) automatically from a single opt-in label. Using Kyverno
+`generate` rules with `synchronize: true` ensures platform defaults stay intact without manual
+tickets.
+
+**Exercise:** [devex-golden-path](../challenges/7-devex/golden-path/answer.md)
 
 ---
 
@@ -513,11 +549,11 @@ kubectl run tmp --rm -it --image=nicolaka/netshoot -- /bin/bash
 
 | Domain | Must Know |
 |--------|-----------|
-| GitOps | Application, ApplicationSet, Rollout |
-| Platform | CRD, XRD, Composition, Operator patterns |
-| Observability | PrometheusRule, ServiceMonitor, OTEL env vars |
-| Architecture | NetworkPolicy, StorageClass, ResourceQuota |
-| Security | ClusterPolicy, Role/RoleBinding, PeerAuthentication |
+| Architecture | NetworkPolicy, StorageClass, ResourceQuota, HPA |
+| GitOps | Application, ApplicationSet, Rollout, TriggerTemplate |
+| Platform APIs | CRD, XRD, Composition, Operator patterns |
+| Observability | PrometheusRule, ServiceMonitor, OTEL env vars, streaming sidecars |
+| Security | ClusterPolicy, PolicyReport, ValidatingAdmissionPolicy, Role/RoleBinding, PeerAuthentication |
 
 ### Exam Tips
 

@@ -1,0 +1,7 @@
+# Phase 1: security-scan step fails closed instead of ignoring errors
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+commands:
+  - script: |
+      ! kubectl get task security-scan -n cnpe-pipeline-sec \
+        -o jsonpath='{.spec.steps[?(@.name=="scan-image")].onError}' | grep -qx 'continue'

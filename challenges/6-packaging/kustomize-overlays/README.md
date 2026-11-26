@@ -10,7 +10,7 @@ We need to deploy this application to production with different configurations.
 
 ## Task
 
-Create a Kustomize overlay in `challenges/7-packaging/kustomize-overlays/overlays/prod` that:
+Create a Kustomize overlay in `challenges/6-packaging/kustomize-overlays/overlays/prod` that:
 1.  Inherits from `../../base`.
 2.  Updates the replica count to **3**.
 3.  Sets a resource limit of **512Mi** memory for the container.
@@ -19,7 +19,7 @@ Create a Kustomize overlay in `challenges/7-packaging/kustomize-overlays/overlay
 
 Apply your configuration using:
 ```bash
-kubectl apply -k challenges/7-packaging/kustomize-overlays/overlays/prod
+kubectl apply -k challenges/6-packaging/kustomize-overlays/overlays/prod
 ```
 
 ## Verification

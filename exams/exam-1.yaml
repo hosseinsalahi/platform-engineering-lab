@@ -6,44 +6,44 @@ instructions:
   - "Treat this like an exam: no peeking at `answer.md`."
   - "Use `just exam-1` to run."
 sections:
+  - id: "arch-1"
+    domain: "Platform Architecture (15%)"
+    minutes: 18
+    challenge: "1-architecture/pod-disruption-budget"
+    objective: "Fix the PDB so voluntary disruptions maintain availability."
+
   - id: "gitops-1"
     domain: "GitOps (25%)"
     minutes: 15
-    challenge: "1-gitops/broken-sync"
+    challenge: "2-gitops/broken-sync"
     objective: "Restore Argo CD sync by fixing the Application configuration."
   - id: "gitops-2"
     domain: "GitOps (25%)"
     minutes: 15
-    challenge: "1-gitops/canary-rollout"
+    challenge: "2-gitops/canary-rollout"
     objective: "Migrate to an Argo Rollout and get canary steps passing."
 
   - id: "apis-1"
     domain: "Platform APIs (25%)"
     minutes: 15
-    challenge: "2-apis/platform-crd"
+    challenge: "3-apis/platform-crd"
     objective: "Create a CRD that enables a self-service platform API."
   - id: "apis-2"
     domain: "Platform APIs (25%)"
     minutes: 15
-    challenge: "2-apis/crd-status"
+    challenge: "3-apis/crd-status"
     objective: "Enable and validate CRD status subresource behavior."
 
   - id: "obs-1"
     domain: "Observability (20%)"
     minutes: 12
-    challenge: "3-observability/grafana-dashboard"
+    challenge: "4-observability/grafana-dashboard"
     objective: "Fix dashboard issues so the panel(s) render correctly."
   - id: "obs-2"
     domain: "Observability (20%)"
     minutes: 12
-    challenge: "3-observability/prometheus-alert"
+    challenge: "4-observability/prometheus-alert"
     objective: "Create a correct Prometheus alerting rule and satisfy asserts."
-
-  - id: "arch-1"
-    domain: "Architecture (15%)"
-    minutes: 18
-    challenge: "4-architecture/pod-disruption-budget"
-    objective: "Fix the PDB so voluntary disruptions maintain availability."
 
   - id: "sec-1"
     domain: "Security (15%)"

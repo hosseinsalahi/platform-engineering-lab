@@ -146,7 +146,7 @@ exam-2 *ARGS:
 # ==================== Auto-Solve ====================
 
 # Auto-solve a challenge or an exam YAML
-# - `just solve 4-architecture/network-policy`
+# - `just solve 1-architecture/network-policy`
 # - `just solve exam-1`
 # - `just solve --help`
 solve *ARGS:
@@ -173,6 +173,36 @@ domain name *ARGS:
 _run domain test:
   ./scripts/run-exercise.sh "{{domain}}/{{test}}" --interactive
 
+# ==================== Architecture Domain (15%) ====================
+
+# Run all Architecture challenges
+domain-architecture *ARGS:
+  @just exam domain-architecture {{ARGS}}
+
+# Inject fault using Istio VirtualService
+arch-fault: (_run "1-architecture" "istio-fault-injection")
+
+# Configure NetworkPolicy for multi-tenancy
+arch-networkpolicy: (_run "1-architecture" "network-policy")
+
+# Configure ResourceQuota and LimitRange
+arch-quota: (_run "1-architecture" "resource-quota")
+
+# Configure a PodDisruptionBudget for availability
+arch-pdb: (_run "1-architecture" "pod-disruption-budget")
+
+# Configure StorageClass for persistent storage
+arch-storage: (_run "1-architecture" "storage-class")
+
+# Configure Istio VirtualService traffic splitting
+arch-mesh: (_run "1-architecture" "service-mesh")
+
+# Fix OpenCost cost allocation labels
+arch-cost: (_run "1-architecture" "cost-allocation")
+
+# Configure Horizontal Pod Autoscaling
+arch-hpa: (_run "1-architecture" "hpa-cpu")
+
 # ==================== GitOps Domain (25%) ====================
 
 # Run all GitOps challenges
@@ -180,22 +210,22 @@ domain-gitops *ARGS:
   @just exam domain-gitops {{ARGS}}
 
 # Fix broken ArgoCD sync
-gitops-fix: (_run "1-gitops" "broken-sync")
+gitops-fix: (_run "2-gitops" "broken-sync")
 
 # Configure Argo Rollouts canary deployment
-gitops-canary: (_run "1-gitops" "canary-rollout")
+gitops-canary: (_run "2-gitops" "canary-rollout")
 
 # Setup Tekton trigger pipeline
-gitops-tekton: (_run "1-gitops" "tekton-pipeline")
+gitops-tekton: (_run "2-gitops" "tekton-pipeline")
 
 # ArgoCD ApplicationSet environment promotion
-gitops-appset: (_run "1-gitops" "env-promotion")
+gitops-appset: (_run "2-gitops" "env-promotion")
 
 # Blue/Green deployment with Argo Rollouts
-gitops-bluegreen: (_run "1-gitops" "bluegreen")
+gitops-bluegreen: (_run "2-gitops" "bluegreen")
 
 # Istio canary release troubleshooting
-gitops-istio: (_run "1-gitops" "istio-canary")
+gitops-istio: (_run "2-gitops" "istio-canary")
 
 # ==================== Platform APIs Domain (25%) ====================
 
@@ -204,16 +234,16 @@ domain-platform *ARGS:
   @just exam domain-apis {{ARGS}}
 
 # Create platform CRD for self-service
-platform-crd: (_run "2-apis" "platform-crd")
+platform-crd: (_run "3-apis" "platform-crd")
 
 # Add status subresource to CRD
-platform-crd-status: (_run "2-apis" "crd-status")
+platform-crd-status: (_run "3-apis" "crd-status")
 
 # Troubleshoot operator RBAC
-platform-operator: (_run "2-apis" "operator-rbac")
+platform-operator: (_run "3-apis" "operator-rbac")
 
 # Self-service provisioning with Crossplane
-platform-selfservice: (_run "2-apis" "crossplane-workflow")
+platform-selfservice: (_run "3-apis" "crossplane-workflow")
 
 # ==================== Observability Domain (20%) ====================
 
@@ -222,46 +252,25 @@ domain-observability *ARGS:
   @just exam domain-observability {{ARGS}}
 
 # Fix broken ServiceMonitor selector
-obs-monitor: (_run "3-observability" "broken-servicemonitor")
-
-# Fix OpenCost cost allocation labels
-obs-cost: (_run "3-observability" "cost-allocation")
+obs-monitor: (_run "4-observability" "broken-servicemonitor")
 
 # Fix broken Grafana dashboard
-obs-grafana: (_run "3-observability" "grafana-dashboard")
+obs-grafana: (_run "4-observability" "grafana-dashboard")
 
 # Fix Prometheus alerting rule
-obs-alerting: (_run "3-observability" "prometheus-alert")
+obs-alerting: (_run "4-observability" "prometheus-alert")
 
 # Configure Jaeger tracing for application
-obs-tracing: (_run "3-observability" "jaeger-trace")
+obs-tracing: (_run "4-observability" "jaeger-trace")
 
 # Diagnose and fix pod failure incident
-obs-incident: (_run "3-observability" "incident-fix")
+obs-incident: (_run "4-observability" "incident-fix")
 
-# ==================== Architecture Domain (15%) ====================
+# Make the platform's DORA signals load in Prometheus
+obs-dora: (_run "4-observability" "dora-metrics")
 
-# Run all Architecture challenges
-domain-architecture *ARGS:
-  @just exam domain-architecture {{ARGS}}
-
-# Inject fault using Istio VirtualService
-arch-fault: (_run "4-architecture" "istio-fault-injection")
-
-# Configure NetworkPolicy for multi-tenancy
-arch-networkpolicy: (_run "4-architecture" "network-policy")
-
-# Configure ResourceQuota and LimitRange
-arch-quota: (_run "4-architecture" "resource-quota")
-
-# Configure a PodDisruptionBudget for availability
-arch-pdb: (_run "4-architecture" "pod-disruption-budget")
-
-# Configure StorageClass for persistent storage
-arch-storage: (_run "4-architecture" "storage-class")
-
-# Configure Istio VirtualService traffic splitting
-arch-mesh: (_run "4-architecture" "service-mesh")
+# Configure sidecar logging and scraping annotations
+obs-logging: (_run "4-observability" "structured-logging")
 
 # ==================== Security Domain (15%) ====================
 
@@ -293,14 +302,11 @@ security-eso: (_run "5-security" "external-secrets")
 # Fix a ValidatingAdmissionPolicy (native CEL admission)
 security-vap: (_run "5-security" "validating-admission-policy")
 
-# ==================== Scalability Domain ====================
+# Enforce a Tekton pipeline security scan gate
+security-pipeline: (_run "5-security" "pipeline-security-scan")
 
-# Run all Scalability challenges
-domain-scalability *ARGS:
-  @just exam domain-scalability {{ARGS}}
-
-# Configure Horizontal Pod Autoscaling
-scal-hpa: (_run "6-scalability" "hpa-cpu")
+# Enable background Kyverno audit compliance PolicyReports
+security-audit: (_run "5-security" "audit-compliance-policy")
 
 # ==================== Packaging Domain ====================
 
@@ -309,10 +315,10 @@ domain-packaging *ARGS:
   @just exam domain-packaging {{ARGS}}
 
 # Fix Broken Helm Chart
-pkg-helm: (_run "7-packaging" "helm-templating")
+pkg-helm: (_run "6-packaging" "helm-templating")
 
 # Create Production Kustomize Overlay
-pkg-kustomize: (_run "7-packaging" "kustomize-overlays")
+pkg-kustomize: (_run "6-packaging" "kustomize-overlays")
 
 # ==================== Developer Experience Domain ====================
 
@@ -321,13 +327,4 @@ domain-devex *ARGS:
   @just exam domain-devex {{ARGS}}
 
 # Repair a self-service golden path
-devex-golden-path: (_run "8-devex" "golden-path")
-
-# ==================== Measurement Domain ====================
-
-# Run all Measurement challenges
-domain-measurement *ARGS:
-  @just exam domain-measurement {{ARGS}}
-
-# Make the platform's DORA signals load in Prometheus
-measure-dora: (_run "9-measurement" "dora-metrics")
+devex-golden-path: (_run "7-devex" "golden-path")

@@ -1,0 +1,80 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: cnpe-compliance
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: legacy-app
+  namespace: cnpe-compliance
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: legacy-app
+  template:
+    metadata:
+      labels:
+        app: legacy-app
+    spec:
+      containers:
+        - name: app
+          image: nginx:alpine
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: attested-app
+  namespace: cnpe-compliance
+  annotations:
+    security.cnpe.io/sbom-uri: "https://sbom.cnpe.internal/attested-app-1.25.spdx.json"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: attested-app
+  template:
+    metadata:
+      labels:
+        app: attested-app
+    spec:
+      containers:
+        - name: app
+          image: nginx:1.25
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+---
+# BROKEN: Policy is meant to audit existing and new Deployments in cnpe-compliance
+# and record pass/fail PolicyReports without blocking admission.
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: audit-image-provenance
+spec:
+  # BUG 1: background: false prevents scanning existing Deployments for PolicyReports
+  background: false
+  rules:
+    - name: require-sbom-annotation
+      match:
+        any:
+          - resources:
+              kinds:
+                - Deployment
+              namespaces:
+                # BUG 2: wrong namespace - should be cnpe-compliance
+                - cnpe-other-ns
+      validate:
+        # BUG 3: should be Audit so compliance status is reported without blocking rollouts
+        failureAction: Enforce
+        message: "Deployments should declare a security.cnpe.io/sbom-uri annotation."
+        pattern:
+          metadata:
+            annotations:
+              security.cnpe.io/sbom-uri: "?*"

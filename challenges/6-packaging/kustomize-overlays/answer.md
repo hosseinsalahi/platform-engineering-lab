@@ -43,7 +43,7 @@ stays in its unsolved state and the challenge can be run again:
 ```bash
 cd "$(git rev-parse --show-toplevel)"
 WORK="$(mktemp -d)"
-cp -R challenges/7-packaging/kustomize-overlays "$WORK/kustomize"
+cp -R challenges/6-packaging/kustomize-overlays "$WORK/kustomize"
 
 cat > "$WORK/kustomize/overlays/prod/kustomization.yaml" <<'KUSTOMIZATION'
 apiVersion: kustomize.config.k8s.io/v1beta1
@@ -75,8 +75,8 @@ kubectl apply -k "$WORK/kustomize/overlays/prod"
 ```
 
 To solve it in place instead, edit
-`challenges/7-packaging/kustomize-overlays/overlays/prod/kustomization.yaml` directly and
-run `kubectl apply -k challenges/7-packaging/kustomize-overlays/overlays/prod`, then
+`challenges/6-packaging/kustomize-overlays/overlays/prod/kustomization.yaml` directly and
+run `kubectl apply -k challenges/6-packaging/kustomize-overlays/overlays/prod`, then
 `git checkout` the file to restore the TODO stub.
 
 ## Verification

@@ -1,0 +1,9 @@
+# Phase 3: PolicyReports record both pass (attested-app) and fail (legacy-app)
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+timeout: 180
+commands:
+  - script: |
+      out="$(kubectl get policyreports -n cnpe-compliance -o jsonpath='{range .items[*].results[*]}{.policy}:{.result}{"\n"}{end}')"
+      printf '%s\n' "$out" | grep -qx 'audit-image-provenance:pass'
+      printf '%s\n' "$out" | grep -qx 'audit-image-provenance:fail'

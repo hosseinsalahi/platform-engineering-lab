@@ -34,13 +34,13 @@ just exam-2
 In addition to full mock exams, you can run focused drills for specific domains:
 
 ```bash
+just domain-architecture
 just domain-gitops
 just domain-platform
 just domain-observability
-just domain-architecture
 just domain-security
-just domain-scalability
 just domain-packaging
+just domain-devex
 ```
 
 These run all challenges in a specific domain sequentially using the interactive runner.

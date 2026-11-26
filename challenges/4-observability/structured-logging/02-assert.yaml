@@ -1,0 +1,7 @@
+# Phase 3: Structured JSON log lines stream to the log-streamer container stdout
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+timeout: 180
+commands:
+  - script: |
+      kubectl logs deploy/checkout-worker -n cnpe-logging -c log-streamer --tail=20 | grep -q '"service":"checkout"'

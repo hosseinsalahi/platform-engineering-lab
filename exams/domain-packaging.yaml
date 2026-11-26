@@ -7,10 +7,10 @@ sections:
   - id: "pkg-helm"
     domain: "Packaging"
     minutes: 15
-    challenge: "7-packaging/helm-templating"
-    objective: "Fix Broken Helm Chart."
+    challenge: "6-packaging/helm-templating"
+    objective: "Fix broken Helm chart."
   - id: "pkg-kustomize"
     domain: "Packaging"
     minutes: 15
-    challenge: "7-packaging/kustomize-overlays"
-    objective: "Create Production Kustomize Overlay."
+    challenge: "6-packaging/kustomize-overlays"
+    objective: "Create production Kustomize overlay."

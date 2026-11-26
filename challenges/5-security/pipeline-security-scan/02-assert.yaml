@@ -1,0 +1,8 @@
+# Phase 3: Verification PipelineRun completes successfully through the gated pipeline
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+timeout: 240
+commands:
+  - script: |
+      kubectl get pipelinerun secure-release-verify -n cnpe-pipeline-sec \
+        -o jsonpath='{.status.conditions[?(@.type=="Succeeded")].status}' | grep -qx 'True'

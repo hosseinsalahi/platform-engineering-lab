@@ -36,7 +36,7 @@ that exam actually needs.
    rules in [CONTRIBUTING.md](CONTRIBUTING.md#the-answermd-contract).
 2. **Answers must not modify tracked files.** Copy to a scratch directory and work
    there, or the first solve leaves the challenge permanently fixed in the working tree.
-   Pattern: `challenges/7-packaging/helm-templating/answer.md`.
+   Pattern: `challenges/6-packaging/helm-templating/answer.md`.
 3. **Never declare a shared namespace in `setup.yaml`.** Cleanup runs
    `kubectl delete -f setup.yaml`, so declaring `monitoring` uninstalls
    kube-prometheus-stack. Use a `cnpe-*` name and select shared namespaces by label.

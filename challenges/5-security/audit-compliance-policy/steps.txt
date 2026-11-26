@@ -1,0 +1,3 @@
+0:Enable spec.background: true on ClusterPolicy audit-image-provenance
+1:Set match namespace to cnpe-compliance and validate.failureAction to Audit
+2:Confirm PolicyReports in cnpe-compliance record both pass (attested-app) and fail (legacy-app)

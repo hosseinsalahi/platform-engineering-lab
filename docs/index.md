@@ -4,7 +4,7 @@ Hands-on challenges for cloud-native platform engineering. Each challenge puts a
 or incomplete platform component on a real Kubernetes cluster and validates your fix with
 [KUTTL](https://kuttl.dev/) assertions on a timer.
 
-35 challenges across 9 practical domains. This is a hands-on lab rather than an exam
+38 challenges across 7 practical domains. This is a hands-on lab rather than an exam
 simulator — see the README for how it maps to the hands-on
 [CNPE](https://www.cncf.io/training/certification/cnpe/) and multiple-choice
 [CNPA](https://www.cncf.io/training/certification/cnpa/) certifications, and which of their
@@ -49,17 +49,15 @@ conditions. Resources are cleaned up when the test completes.
 
 | # | Domain | Weight | Challenges |
 |---|--------|--------|-----------|
-| 1 | GitOps and Continuous Delivery | 25% | 6 |
-| 2 | Platform APIs and Self-Service | 25% | 4 |
-| 3 | Observability and Operations | 20% | 6 |
-| 4 | Platform Architecture | 15% | 6 |
-| 5 | Security and Policy Enforcement | 15% | 8 |
-| 6 | Scalability | bonus | 1 |
-| 7 | Packaging | bonus | 2 |
-| 8 | Developer Experience | bonus | 1 |
-| 9 | Measuring your Platform | bonus | 1 |
+| 1 | Platform Architecture and Infrastructure | 15% | 8 |
+| 2 | GitOps and Continuous Delivery | 25% | 6 |
+| 3 | Platform APIs and Self-Service Capabilities | 25% | 4 |
+| 4 | Observability and Operations | 20% | 7 |
+| 5 | Security and Policy Enforcement | 15% | 10 |
+| 6 | Packaging | bonus | 2 |
+| 7 | Developer Experience | bonus | 1 |
 
-Run a whole domain with `just domain-gitops`, `just domain-security`, and so on, or list
+Run a whole domain with `just domain-architecture`, `just domain-gitops`, `just domain-security`, and so on, or list
 everything with `just list`.
 
 ## Where To Go Next

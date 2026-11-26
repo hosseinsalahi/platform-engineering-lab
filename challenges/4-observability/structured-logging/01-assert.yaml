@@ -1,0 +1,9 @@
+# Phase 2: log-streamer sidecar mounts varlog at /var/log/app and Deployment is available
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+timeout: 180
+commands:
+  - script: |
+      [ "$(kubectl get deployment checkout-worker -n cnpe-logging -o jsonpath='{.spec.template.spec.containers[?(@.name=="log-streamer")].volumeMounts[?(@.name=="varlog")].mountPath}')" = "/var/log/app" ]
+  - script: |
+      [ "$(kubectl get deployment checkout-worker -n cnpe-logging -o jsonpath='{.status.availableReplicas}')" = "1" ]

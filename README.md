@@ -2,7 +2,7 @@
 
 [![Preflight](https://github.com/hosseinsalahi/platform-engineering-lab/actions/workflows/preflight.yml/badge.svg)](https://github.com/hosseinsalahi/platform-engineering-lab/actions/workflows/preflight.yml)
 
-A hands-on lab for cloud-native platform engineering: 35 scenarios that put a broken or
+A hands-on lab for cloud-native platform engineering: 38 scenarios that put a broken or
 incomplete platform component on a real Kubernetes cluster and check your fix with
 [KUTTL](https://kuttl.dev/) assertions.
 
@@ -180,9 +180,19 @@ The provisioning script installs these platform engineering tools:
 
 ## Challenges
 
-35 challenges across 9 domains. See [docs/SOLUTIONS.md](docs/SOLUTIONS.md) for concepts and answers.
+38 challenges across 7 domains. See [docs/SOLUTIONS.md](docs/SOLUTIONS.md) for concepts and answers.
 
-### 1: GitOps and Continuous Delivery (25%)
+### 1: Platform Architecture and Infrastructure (15%)
+- **network-policy**: Configure NetworkPolicies for a multi-tenant environment.
+- **resource-quota**: Configure ResourceQuotas and LimitRanges for a multi-tenant environment.
+- **pod-disruption-budget**: Fix a PodDisruptionBudget selector to prevent downtime during maintenance.
+- **storage-class**: Configure a StorageClass for stateful workloads.
+- **service-mesh**: Configure Istio for traffic splitting.
+- **istio-fault-injection**: Inject faults with an Istio VirtualService to test resilience.
+- **cost-allocation**: Configure OpenCost for cost allocation.
+- **hpa-cpu**: Configure Horizontal Pod Autoscaling based on CPU.
+
+### 2: GitOps and Continuous Delivery (25%)
 - **broken-sync**: Diagnose and fix an Argo CD application that is out of sync.
 - **canary-rollout**: Migrate a Kubernetes Deployment to an Argo Rollout for canary releases.
 - **tekton-pipeline**: Troubleshoot a Tekton Trigger that is failing to create PipelineRuns.
@@ -190,27 +200,20 @@ The provisioning script installs these platform engineering tools:
 - **bluegreen**: Perform a blue-green deployment using Argo Rollouts.
 - **istio-canary**: Troubleshoot a canary release that is failing due to an Istio misconfiguration.
 
-### 2: Platform APIs and Self-Service (25%)
+### 3: Platform APIs and Self-Service Capabilities (25%)
 - **platform-crd**: Create a CustomResourceDefinition to enable self-service environment provisioning.
 - **crd-status**: Add a status subresource to a CustomResourceDefinition.
 - **operator-rbac**: Troubleshoot a Kubernetes operator that is not reconciling.
 - **crossplane-workflow**: Create a self-service workflow using Crossplane.
 
-### 3: Observability and Operations (20%)
+### 4: Observability and Operations (20%)
 - **broken-servicemonitor**: Fix a ServiceMonitor selector so Prometheus scrapes the target.
-- **cost-allocation**: Configure OpenCost for cost allocation.
 - **grafana-dashboard**: Troubleshoot a broken Grafana dashboard.
 - **prometheus-alert**: Create a Prometheus alerting rule.
 - **jaeger-trace**: Trace a request through a microservices application using Jaeger.
 - **incident-fix**: Diagnose and fix a failing application using observability tools.
-
-### 4: Platform Architecture (15%)
-- **network-policy**: Configure NetworkPolicies for a multi-tenant environment.
-- **resource-quota**: Configure ResourceQuotas and LimitRanges for a multi-tenant environment.
-- **pod-disruption-budget**: Fix a PodDisruptionBudget selector to prevent downtime during maintenance.
-- **storage-class**: Configure a StorageClass for stateful workloads.
-- **service-mesh**: Configure Istio for traffic splitting.
-- **istio-fault-injection**: Inject faults with an Istio VirtualService to test resilience.
+- **dora-metrics**: Get DORA recording rules actually loaded and evaluated by Prometheus.
+- **structured-logging**: Configure sidecar log streaming and scraping annotations for centralized JSON logging.
 
 ### 5: Security and Policy Enforcement (15%)
 - **kyverno-policy**: Troubleshoot a broken Kyverno policy.
@@ -221,30 +224,24 @@ The provisioning script installs these platform engineering tools:
 - **gatekeeper-constraint**: Create a Gatekeeper Constraint to enforce a policy.
 - **external-secrets**: Fix a broken ExternalSecret so the Secret syncs from the store.
 - **validating-admission-policy**: Fix a native ValidatingAdmissionPolicy that fails open.
+- **pipeline-security-scan**: Enforce a CI/CD pipeline security scan gate in Tekton.
+- **audit-compliance-policy**: Enable background Kyverno Audit policies to generate PolicyReport audit trails.
 
-### 6: Scalability (Bonus)
-- **hpa-cpu**: Configure Horizontal Pod Autoscaling based on CPU.
-
-### 7: Packaging (Bonus)
+### 6: Packaging (Bonus)
 - **helm-templating**: Fix a broken Helm chart.
 - **kustomize-overlays**: Create a production Kustomize overlay.
 
-### 8: Developer Experience (Bonus)
+### 7: Developer Experience (Bonus)
 - **golden-path**: Repair a self-service golden path so labelling a namespace generates its guardrails.
 
-### 9: Measuring your Platform (Bonus)
-- **dora-metrics**: Get DORA recording rules actually loaded and evaluated by Prometheus.
-
 ```bash
+just domain-architecture  # or: just arch-networkpolicy, just arch-cost, ...
 just domain-gitops        # or: just gitops-fix, just gitops-canary, ...
 just domain-platform
 just domain-observability
-just domain-architecture
 just domain-security
-just domain-scalability
 just domain-packaging
 just domain-devex
-just domain-measurement
 ```
 
 ## How KUTTL Progressive Testing Works
@@ -254,7 +251,7 @@ just domain-measurement
 ### Challenge Structure
 
 ```
-challenges/1-gitops/broken-sync/
+challenges/2-gitops/broken-sync/
 ├── setup.yaml      # Creates the broken state (runs first)
 ├── 00-assert.yaml  # Step 1: waits for initial fix
 ├── 01-assert.yaml  # Step 2: validates additional requirements
@@ -285,17 +282,17 @@ certifications are relevant, and they are different kinds of exam.
 
 The [Certified Cloud Native Platform Engineer (CNPE)](https://www.cncf.io/training/certification/cnpe/)
 is an online, proctored, **performance-based** exam: 120 minutes of tasks solved in a
-terminal and web UIs. Domains `1`–`5` here follow its published domains and weights:
+terminal and web UIs. Domains `1`–`5` here follow its published domains, order, and weights:
 
 | CNPE domain | Weight | Directory |
 |---|---|---|
-| GitOps and Continuous Delivery | 25% | `1-gitops` |
-| Platform APIs and Self-Service Capabilities | 25% | `2-apis` |
-| Observability and Operations | 20% | `3-observability` |
-| Platform Architecture and Infrastructure | 15% | `4-architecture` |
+| Platform Architecture and Infrastructure | 15% | `1-architecture` |
+| GitOps and Continuous Delivery | 25% | `2-gitops` |
+| Platform APIs and Self-Service Capabilities | 25% | `3-apis` |
+| Observability and Operations | 20% | `4-observability` |
 | Security and Policy Enforcement | 15% | `5-security` |
 
-Domains `6`–`9` are bonus material outside the CNPE weighting. The challenges are written
+Domains `6`–`7` are bonus material outside the CNPE weighting. The challenges are written
 independently of the exam: they are not derived from exam content, the tool selection is
 this repo's own, and the per-challenge timer is a focus device rather than a reproduction
 of exam conditions. The number of challenges per domain reflects what makes a good
@@ -310,12 +307,12 @@ CNPA's published domains, and where this repo lands against them:
 
 | CNPA domain | Weight | Covered here |
 |---|---|---|
-| Platform Engineering Core Fundamentals | 36% | Partially — `4-architecture`, `6-scalability`, `7-packaging` cover the practical side; the conceptual material is not exercised |
-| Platform Observability, Security and Conformance | 20% | Yes — `3-observability` and `5-security` |
-| Continuous Delivery & Platform Engineering | 16% | Yes — `1-gitops` |
-| Platform APIs and Provisioning Infrastructure | 12% | Yes — `2-apis` |
-| IDPs and Developer Experience | 8% | Partly — `8-devex` covers self-service golden paths; portal/catalog tooling is not exercised |
-| Measuring your Platform | 8% | Partly — `9-measurement` covers platform-side DORA signals; delivery-pipeline and incident data are not |
+| Platform Engineering Core Fundamentals | 36% | Partially — `1-architecture` and `6-packaging` cover the practical side; the conceptual material is not exercised |
+| Platform Observability, Security and Conformance | 20% | Yes — `4-observability` and `5-security` |
+| Continuous Delivery & Platform Engineering | 16% | Yes — `2-gitops` |
+| Platform APIs and Provisioning Infrastructure | 12% | Yes — `3-apis` |
+| IDPs and Developer Experience | 8% | Partly — `7-devex` covers self-service golden paths; portal/catalog tooling is not exercised |
+| Measuring your Platform | 8% | Partly — `4-observability` (`dora-metrics`) covers platform-side DORA signals; delivery-pipeline and incident data are not |
 
 Every CNPA domain has at least one challenge, but the coverage is uneven: the largest
 domain is mostly conceptual and only partly exercised here, and the two 8% domains are

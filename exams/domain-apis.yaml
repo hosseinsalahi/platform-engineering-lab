@@ -7,20 +7,20 @@ sections:
   - id: "platform-crd"
     domain: "Platform APIs (25%)"
     minutes: 15
-    challenge: "2-apis/platform-crd"
+    challenge: "3-apis/platform-crd"
     objective: "Create platform CRD for self-service."
   - id: "crd-status"
     domain: "Platform APIs (25%)"
     minutes: 15
-    challenge: "2-apis/crd-status"
+    challenge: "3-apis/crd-status"
     objective: "Add status subresource to CRD."
   - id: "operator-rbac"
     domain: "Platform APIs (25%)"
     minutes: 15
-    challenge: "2-apis/operator-rbac"
+    challenge: "3-apis/operator-rbac"
     objective: "Troubleshoot operator RBAC."
   - id: "crossplane-workflow"
     domain: "Platform APIs (25%)"
     minutes: 15
-    challenge: "2-apis/crossplane-workflow"
+    challenge: "3-apis/crossplane-workflow"
     objective: "Self-service provisioning with Crossplane."
