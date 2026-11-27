@@ -1,5 +1,5 @@
 name: "Security Domain Exam"
-totalMinutes: 90
+totalMinutes: 150
 instructions:
   - "Provision the lab first (recommended): `just provision-exam domain-security`."
   - "Treat this like an exam: no peeking at `answer.md`."
@@ -45,3 +45,13 @@ sections:
     minutes: 15
     challenge: "5-security/validating-admission-policy"
     objective: "Fix a ValidatingAdmissionPolicy that fails open."
+  - id: "sec-pipeline"
+    domain: "Security (15%)"
+    minutes: 15
+    challenge: "5-security/pipeline-security-scan"
+    objective: "Enforce a CI/CD pipeline security scan gate in Tekton."
+  - id: "sec-audit"
+    domain: "Security (15%)"
+    minutes: 15
+    challenge: "5-security/audit-compliance-policy"
+    objective: "Enable background Kyverno Audit policies to generate PolicyReport audit trails."

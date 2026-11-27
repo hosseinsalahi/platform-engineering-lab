@@ -1,0 +1,22 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: audit-image-provenance
+spec:
+  background: true
+  rules:
+    - name: require-sbom-annotation
+      match:
+        any:
+          - resources:
+              kinds:
+                - Deployment
+              namespaces:
+                - cnpe-compliance
+      validate:
+        failureAction: Audit
+        message: "Deployments should declare a security.cnpe.io/sbom-uri annotation."
+        pattern:
+          metadata:
+            annotations:
+              security.cnpe.io/sbom-uri: "?*"

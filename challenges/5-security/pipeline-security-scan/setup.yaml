@@ -1,0 +1,105 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: cnpe-pipeline-sec
+---
+apiVersion: tekton.dev/v1
+kind: Task
+metadata:
+  name: build-image
+  namespace: cnpe-pipeline-sec
+spec:
+  params:
+    - name: image
+      type: string
+  steps:
+    - name: build
+      image: alpine:3.19
+      script: |
+        #!/bin/sh
+        set -eu
+        echo "Building artifact $(params.image)"
+---
+apiVersion: tekton.dev/v1
+kind: Task
+metadata:
+  name: security-scan
+  namespace: cnpe-pipeline-sec
+spec:
+  params:
+    - name: image
+      type: string
+  steps:
+    - name: scan-image
+      image: alpine:3.19
+      # BUG 1: onError: continue ignores failed security scans instead of halting the task
+      onError: continue
+      script: |
+        #!/bin/sh
+        set -eu
+        case "$(params.image)" in
+          *:latest)
+            echo "FAIL: mutable ':latest' tag is prohibited: $(params.image)" >&2
+            exit 1
+            ;;
+          *:*)
+            echo "PASS: pinned image tag verified: $(params.image)"
+            ;;
+          *)
+            echo "FAIL: untagged image is prohibited: $(params.image)" >&2
+            exit 1
+            ;;
+        esac
+---
+apiVersion: tekton.dev/v1
+kind: Task
+metadata:
+  name: deploy-app
+  namespace: cnpe-pipeline-sec
+spec:
+  params:
+    - name: image
+      type: string
+  steps:
+    - name: deploy
+      image: alpine:3.19
+      script: |
+        #!/bin/sh
+        set -eu
+        echo "Deploying $(params.image)"
+---
+# BROKEN: deploy runs directly after build, bypassing the security-scan gate
+apiVersion: tekton.dev/v1
+kind: Pipeline
+metadata:
+  name: secure-release
+  namespace: cnpe-pipeline-sec
+spec:
+  params:
+    - name: image
+      type: string
+      default: "nginx:1.25"
+  tasks:
+    - name: build
+      taskRef:
+        name: build-image
+      params:
+        - name: image
+          value: $(params.image)
+    - name: security-scan
+      taskRef:
+        name: security-scan
+      runAfter:
+        - build
+      params:
+        - name: image
+          value: $(params.image)
+    - name: deploy
+      taskRef:
+        name: deploy-app
+      # BUG 2: should runAfter security-scan, not build
+      runAfter:
+        - build
+      params:
+        - name: image
+          value: $(params.image)

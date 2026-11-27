@@ -34,15 +34,13 @@ KIND_CONTEXT="kind-${CLUSTER_NAME}"
 # Domain description (portable across bash versions)
 get_domain_desc() {
     case "$1" in
-        "1-gitops") echo "GitOps and Continuous Delivery (25%)" ;;
-        "2-apis") echo "Platform APIs and Self-Service (25%)" ;;
-        "3-observability") echo "Observability and Operations (20%)" ;;
-        "4-architecture") echo "Platform Architecture (15%)" ;;
+        "1-architecture") echo "Platform Architecture and Infrastructure (15%)" ;;
+        "2-gitops") echo "GitOps and Continuous Delivery (25%)" ;;
+        "3-apis") echo "Platform APIs and Self-Service Capabilities (25%)" ;;
+        "4-observability") echo "Observability and Operations (20%)" ;;
         "5-security") echo "Security and Policy Enforcement (15%)" ;;
-        "6-scalability") echo "Scalability and Performance" ;;
-        "7-packaging") echo "Package Management (Helm/Kustomize)" ;;
-        "8-devex") echo "Developer Experience" ;;
-        "9-measurement") echo "Measuring your Platform" ;;
+        "6-packaging") echo "Package Management (Helm/Kustomize)" ;;
+        "7-devex") echo "Developer Experience" ;;
         "0-test") echo "Test Setup (validation only)" ;;
         *) echo "Unknown" ;;
     esac
@@ -53,8 +51,8 @@ usage() {
 Usage: run-exercise.sh <challenge-path> [options]
 
 Examples:
-  run-exercise.sh 1-gitops/broken-sync
-  run-exercise.sh 1-gitops/canary-rollout --timeout 300
+  run-exercise.sh 2-gitops/broken-sync
+  run-exercise.sh 2-gitops/canary-rollout --timeout 300
 
 Options:
   --setup-only       Create broken state only (practice mode, no cleanup)
@@ -458,15 +456,15 @@ run_kuttl_interactive() {
             echo -e "${RED}✗ Step $((CURRENT_STEP + 1))/${TOTAL_STEPS} timed out${NC}"
 
             echo -e "${YELLOW}--- Debug Info ---${NC}"
-            if [[ "$DOMAIN" == "1-gitops" ]]; then
+            if [[ "$DOMAIN" == "2-gitops" ]]; then
                 echo "ArgoCD Applications:"
                 kubectl get applications -n argocd 2>/dev/null || true
                 echo "Argo Rollouts:"
                 kubectl get rollouts -A 2>/dev/null || true
-            elif [[ "$DOMAIN" == "2-apis" ]]; then
+            elif [[ "$DOMAIN" == "3-apis" ]]; then
                 echo "CRDs:"
                 kubectl get crd | grep cnpe 2>/dev/null || true
-            elif [[ "$DOMAIN" == "3-observability" ]]; then
+            elif [[ "$DOMAIN" == "4-observability" ]]; then
                 echo "Monitoring Pods:"
                 kubectl get pods -n monitoring 2>/dev/null || true
                 echo "Prometheus Rules:"

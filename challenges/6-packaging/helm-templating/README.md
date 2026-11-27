@@ -10,7 +10,7 @@ The deployment pipeline is blocked. You need to identify the syntax errors in th
 
 ## Task
 
-1.  Navigate to the `challenges/7-packaging/helm-templating/chart` directory (or edit files directly).
+1.  Navigate to the `challenges/6-packaging/helm-templating/chart` directory (or edit files directly).
 2.  Debug the template issues using `helm template . --debug`.
 3.  Fix the syntax errors in `templates/deployment.yaml`.
 4.  Install the chart to the `cnpe-packaging` namespace using:

@@ -1,0 +1,7 @@
+# Phase 1: Background scanning is enabled on the ClusterPolicy
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: audit-image-provenance
+spec:
+  background: true

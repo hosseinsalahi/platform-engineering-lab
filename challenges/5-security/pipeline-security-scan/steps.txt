@@ -1,0 +1,3 @@
+0:Change security-scan step onError from continue to stopAndFail
+1:Update deploy task runAfter in Pipeline secure-release to security-scan
+2:Run PipelineRun secure-release-verify with a pinned image (nginx:1.25) and wait for Succeeded

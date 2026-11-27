@@ -7,5 +7,5 @@ sections:
   - id: "devex-golden-path"
     domain: "Developer Experience"
     minutes: 15
-    challenge: "8-devex/golden-path"
+    challenge: "7-devex/golden-path"
     objective: "Repair the golden path so labelling a namespace generates its guardrails."

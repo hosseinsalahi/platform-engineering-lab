@@ -1,0 +1,15 @@
+# Phase 2: Policy targets cnpe-compliance in Audit mode
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: audit-image-provenance
+spec:
+  rules:
+    - name: require-sbom-annotation
+      match:
+        any:
+          - resources:
+              namespaces:
+                - cnpe-compliance
+      validate:
+        failureAction: Audit

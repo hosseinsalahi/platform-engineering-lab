@@ -1,0 +1,6 @@
+# Phase 2: deploy task is gated on security-scan in Pipeline secure-release
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+commands:
+  - script: |
+      [ "$(kubectl get pipeline secure-release -n cnpe-pipeline-sec -o jsonpath='{.spec.tasks[?(@.name=="deploy")].runAfter[*]}')" = "security-scan" ]

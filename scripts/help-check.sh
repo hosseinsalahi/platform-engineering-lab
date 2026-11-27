@@ -50,7 +50,7 @@ run "just exam-tools --help" just exam-tools --help
 run "just solve --help" just solve --help
 run "just provision-exam --help" just provision-exam --help
 run "just provision-tools --help" just provision-tools --help
-run "just domain 1-gitops --help" just domain 1-gitops --help
+run "just domain 2-gitops --help" just domain 2-gitops --help
 run "just exam-1 --help" just exam-1 --help
 
 ok "All --help checks passed"

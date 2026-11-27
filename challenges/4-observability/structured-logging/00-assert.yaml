@@ -1,0 +1,12 @@
+# Phase 1: Pod template annotations enable centralized JSON log scraping
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: checkout-worker
+  namespace: cnpe-logging
+spec:
+  template:
+    metadata:
+      annotations:
+        logging.cnpe.io/scrape: "true"
+        logging.cnpe.io/format: "json"

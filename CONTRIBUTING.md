@@ -26,7 +26,7 @@ docs/                              TechDocs site (mkdocs.yml at the repo root)
 solutions/                         standalone solution manifests
 ```
 
-Domains are numbered directories (`1-gitops` … `7-packaging`), each with a
+Domains are numbered directories (`1-architecture` … `7-devex`), each with a
 `kuttl-test.yaml` TestSuite that sets the 7-minute per-challenge timeout.
 
 ## Adding a challenge
@@ -47,7 +47,7 @@ New domains need a `kuttl-test.yaml` in the domain directory (copy an existing o
 Then wire it up:
 
 1. Add a recipe to the `justfile` in the matching domain section, using `_run`:
-   `mydomain-thing: (_run "4-architecture" "my-challenge")`
+   `mydomain-thing: (_run "1-architecture" "my-challenge")`
 2. Add a section to the relevant file in `exams/` so the challenge is reachable from a
    drill or exam. Every challenge should appear in at least one exam YAML.
 3. Add a bullet to the domain list in `README.md` and update the challenge count.
@@ -107,7 +107,7 @@ any resource the user is expected to create by hand. Make it idempotent
 If a challenge is solved by editing files tracked in the repo, have the answer copy them
 to a scratch directory and work there — otherwise the first solve leaves the challenge
 permanently fixed in the working tree. See
-`challenges/7-packaging/helm-templating/answer.md`.
+`challenges/6-packaging/helm-templating/answer.md`.
 
 ## Style
 

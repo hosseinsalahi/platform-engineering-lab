@@ -29,15 +29,13 @@ NC='\033[0m'
 # Domain descriptions
 get_domain_desc() {
     case "$1" in
-        "1-gitops") echo "GitOps and Continuous Delivery (25%)" ;;
-        "2-apis") echo "Platform APIs and Self-Service (25%)" ;;
-        "3-observability") echo "Observability and Operations (20%)" ;;
-        "4-architecture") echo "Platform Architecture (15%)" ;;
+        "1-architecture") echo "Platform Architecture and Infrastructure (15%)" ;;
+        "2-gitops") echo "GitOps and Continuous Delivery (25%)" ;;
+        "3-apis") echo "Platform APIs and Self-Service Capabilities (25%)" ;;
+        "4-observability") echo "Observability and Operations (20%)" ;;
         "5-security") echo "Security and Policy Enforcement (15%)" ;;
-        "6-scalability") echo "Scalability and Performance" ;;
-        "7-packaging") echo "Package Management (Helm/Kustomize)" ;;
-        "8-devex") echo "Developer Experience" ;;
-        "9-measurement") echo "Measuring your Platform" ;;
+        "6-packaging") echo "Package Management (Helm/Kustomize)" ;;
+        "7-devex") echo "Developer Experience" ;;
         "0-test") echo "Test Setup (validation only)" ;;
         *) echo "Unknown Domain" ;;
     esac
@@ -50,8 +48,8 @@ Usage: run-domain.sh <domain> [options]
 Run challenges within a domain with navigation between tasks.
 
 Examples:
-  run-domain.sh 1-gitops
-  run-domain.sh 4-architecture --timeout 300
+  run-domain.sh 2-gitops
+  run-domain.sh 1-architecture --timeout 300
 
 Options:
   --timeout N    Override timeout per challenge (default: from kuttl-test.yaml)

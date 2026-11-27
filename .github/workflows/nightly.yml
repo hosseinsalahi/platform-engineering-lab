@@ -28,7 +28,7 @@ permissions:
 jobs:
   solve-all:
     runs-on: ubuntu-latest
-    # A full provision plus 35 challenges; failing challenges burn their full
+    # A full provision plus 38 challenges; failing challenges burn their full
     # KUTTL timeout, so leave generous headroom.
     timeout-minutes: 180
     steps:

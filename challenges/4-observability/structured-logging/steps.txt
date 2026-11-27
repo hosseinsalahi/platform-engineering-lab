@@ -1,0 +1,3 @@
+0:Set pod template annotations logging.cnpe.io/scrape=true and logging.cnpe.io/format=json
+1:Fix the log-streamer sidecar volumeMount path from /wrong/path to /var/log/app
+2:Verify structured JSON logs appear in kubectl logs for container log-streamer
